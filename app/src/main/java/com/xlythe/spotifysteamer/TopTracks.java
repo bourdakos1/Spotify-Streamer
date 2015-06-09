@@ -22,9 +22,11 @@ import retrofit.client.Response;
 
 
 public class TopTracks extends Activity {
-    public static String ARTIST_EXTRA = "artist";
+    public static String ARTIST_NAME_EXTRA = "artist_name";
+    public static String ARTIST_ID_EXTRA = "artist_id";
 
-    private String mArtist;
+    private String mArtistName;
+    private String mArtistId;
     private Map<String, Object> mQuery = new HashMap<>();
     private List<Track> mList = new ArrayList<>();
     private ListView mListView;
@@ -38,11 +40,14 @@ public class TopTracks extends Activity {
         SpotifyApi api = new SpotifyApi();
         final SpotifyService spotify = api.getService();
 
-        mArtist = getIntent().getStringExtra(ARTIST_EXTRA);
+        mArtistName = getIntent().getStringExtra(ARTIST_NAME_EXTRA);
+        mArtistId = getIntent().getStringExtra(ARTIST_ID_EXTRA);
         mListView = (ListView) findViewById(R.id.list_view);
-        mQuery.put(spotify.COUNTRY,"US");
+        mQuery.put(spotify.COUNTRY, "US");
 
-        spotify.getArtistTopTrack(mArtist, mQuery,new Callback<Tracks>() {
+        getActionBar().setSubtitle(mArtistName);
+
+        spotify.getArtistTopTrack(mArtistId, mQuery,new Callback<Tracks>() {
             @Override
             public void success(Tracks tracks, Response response) {
                 mList.clear();

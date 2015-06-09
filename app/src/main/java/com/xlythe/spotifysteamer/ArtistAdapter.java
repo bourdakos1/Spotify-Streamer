@@ -42,7 +42,7 @@ public class ArtistAdapter extends ArrayAdapter<Artist>{
         TextView textView = (TextView) rowView.findViewById(R.id.text);
 
         Artist artist = mArtists.get(position);
-        rowView.setTag(artist.id);
+        rowView.setTag(artist);
 
         textView.setText(artist.name);
         if (artist.images.size()>0) {
