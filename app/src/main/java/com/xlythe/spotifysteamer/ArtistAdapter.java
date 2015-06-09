@@ -40,6 +40,7 @@ public class ArtistAdapter extends ArrayAdapter<Artist>{
         Artist artist = mArtists.get(position);
         ImageView imageView = (ImageView) rowView.findViewById(R.id.image);
         TextView textView = (TextView) rowView.findViewById(R.id.text);
+        rowView.setTag(artist.name);
         textView.setText(artist.name);
         if (artist.images.size()>0) {
             Picasso.with(mContext).load(artist.images.get(0).url).into(imageView);

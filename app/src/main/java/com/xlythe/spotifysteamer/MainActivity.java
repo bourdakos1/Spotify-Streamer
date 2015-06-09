@@ -7,9 +7,12 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 
 import java.util.ArrayList;
@@ -58,6 +61,12 @@ public class MainActivity extends Activity {
                     public void success(ArtistsPager artistsPager, Response response) {
                         mList.clear();
                         mList.addAll(artistsPager.artists.items);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mAdapter.notifyDataSetChanged();
+                            }
+                        });
                     }
 
                     @Override
@@ -65,12 +74,16 @@ public class MainActivity extends Activity {
                         Log.d("Spotify", error.toString());
                     }
                 });
-                mAdapter.notifyDataSetChanged();
-                mListView.invalidateViews();
             }
         });
         mAdapter = new ArtistAdapter(this, R.layout.artist_item, mList);
         mListView.setAdapter(mAdapter);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> av, View v, int position, long l) {
+                Toast.makeText(MainActivity.this, "" + v.getTag(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
