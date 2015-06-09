@@ -41,7 +41,7 @@ public class MainActivity extends Activity {
         spotify.searchArtists("Beyonce", new Callback<ArtistsPager>() {
             @Override
             public void success(ArtistsPager artistsPager, Response response) {
-                mList = artistsPager.artists.items;
+                mList.addAll(artistsPager.artists.items);
             }
 
             @Override
@@ -49,7 +49,8 @@ public class MainActivity extends Activity {
                 Log.d("Spotify", error.toString());
             }
         });
-        ArtistAdapter adapter = new ArtistAdapter(this, R.layout.artist_item, mList);
+
+        final ArtistAdapter adapter = new ArtistAdapter(this, R.layout.artist_item, mList);
         mListView.setAdapter(adapter);
     }
 
