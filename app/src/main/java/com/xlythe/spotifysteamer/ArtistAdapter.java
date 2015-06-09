@@ -37,10 +37,13 @@ public class ArtistAdapter extends ArrayAdapter<Artist>{
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(mLayoutResourceId, parent, false);
-        Artist artist = mArtists.get(position);
+
         ImageView imageView = (ImageView) rowView.findViewById(R.id.image);
         TextView textView = (TextView) rowView.findViewById(R.id.text);
-        rowView.setTag(artist.name);
+
+        Artist artist = mArtists.get(position);
+        rowView.setTag(artist.id);
+
         textView.setText(artist.name);
         if (artist.images.size()>0) {
             Picasso.with(mContext).load(artist.images.get(0).url).into(imageView);
