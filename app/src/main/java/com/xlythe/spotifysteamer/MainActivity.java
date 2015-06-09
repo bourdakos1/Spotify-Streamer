@@ -2,10 +2,13 @@ package com.xlythe.spotifysteamer;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 
 
@@ -27,31 +30,47 @@ public class MainActivity extends Activity {
 
     private List<Artist> mList = new ArrayList<>();
     private ListView mListView;
+    private EditText mEditText;
+    private ArtistAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mEditText = (EditText) findViewById(R.id.search);
         mListView = (ListView) findViewById(R.id.list_view);
 
         SpotifyApi api = new SpotifyApi();
-        SpotifyService spotify = api.getService();
+        final SpotifyService spotify = api.getService();
 
-        spotify.searchArtists("Beyonce", new Callback<ArtistsPager>() {
-            @Override
-            public void success(ArtistsPager artistsPager, Response response) {
-                mList.addAll(artistsPager.artists.items);
+        mEditText.addTextChangedListener(new TextWatcher() {
+
+            public void afterTextChanged(Editable s) {
             }
 
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d("Spotify", error.toString());
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                spotify.searchArtists(s.toString(), new Callback<ArtistsPager>() {
+                    @Override
+                    public void success(ArtistsPager artistsPager, Response response) {
+                        mList.clear();
+                        mList.addAll(artistsPager.artists.items);
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        Log.d("Spotify", error.toString());
+                    }
+                });
+                mAdapter.notifyDataSetChanged();
+                mListView.invalidateViews();
             }
         });
-
-        final ArtistAdapter adapter = new ArtistAdapter(this, R.layout.artist_item, mList);
-        mListView.setAdapter(adapter);
+        mAdapter = new ArtistAdapter(this, R.layout.artist_item, mList);
+        mListView.setAdapter(mAdapter);
     }
 
     @Override
