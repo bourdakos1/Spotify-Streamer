@@ -26,14 +26,14 @@ import retrofit.client.Response;
 public class MainActivity extends Activity {
 
     private List<Artist> mList = new ArrayList<>();
-    private ListView listView;
+    private ListView mListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        listView = (ListView) findViewById(R.id.list_view);
+        mListView = (ListView) findViewById(R.id.list_view);
 
         SpotifyApi api = new SpotifyApi();
         SpotifyService spotify = api.getService();
@@ -46,11 +46,11 @@ public class MainActivity extends Activity {
 
             @Override
             public void failure(RetrofitError error) {
-                Log.d("Album failure", error.toString());
+                Log.d("Spotify", error.toString());
             }
         });
         ArtistAdapter adapter = new ArtistAdapter(this, R.layout.artist_item, mList);
-        listView.setAdapter(adapter);
+        mListView.setAdapter(adapter);
     }
 
     @Override
