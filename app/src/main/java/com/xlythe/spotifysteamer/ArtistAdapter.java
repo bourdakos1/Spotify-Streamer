@@ -24,9 +24,9 @@ public class ArtistAdapter extends ArrayAdapter<Artist>{
 
     private Context mContext;
     private int mLayoutResourceId;
-    private List<MyParcelable> mArtists;
+    private List<Artist> mArtists;
 
-    public ArtistAdapter(Context context, int layoutResourceId, List<MyParcelable> artists) {
+    public ArtistAdapter(Context context, int layoutResourceId, List<Artist> artists) {
         super(context, layoutResourceId, artists);
         mLayoutResourceId = layoutResourceId;
         mContext = context;

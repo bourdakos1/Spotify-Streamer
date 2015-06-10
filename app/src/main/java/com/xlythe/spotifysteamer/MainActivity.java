@@ -33,9 +33,10 @@ import retrofit.client.Response;
 
 public class MainActivity extends Activity {
 
-    private List<MyParcelable> mList = new ArrayList<>();
+    private List<Artist> mList = new ArrayList<>();
     private ArtistAdapter mAdapter;
     private Toast mToast;
+    ArrayList<MyParcelable> list;
 
     @InjectView(R.id.list_view) ListView mListView;
     @InjectView(R.id.not_found) ImageView mNotFound;
@@ -45,26 +46,17 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(savedInstanceState != null || savedInstanceState.containsKey("key")) {
-            mList = savedInstanceState.getParcelableArrayList("key");
-        }
+        if(savedInstanceState == null || !savedInstanceState.containsKey("key")) {
 
-        mAdapter = new ArtistAdapter(this, R.layout.artist_item, mList);
-        mListView.setAdapter(mAdapter);
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> av, View v, int position, long l) {
-                Intent i = new Intent(getBaseContext(), TopTracksActivity.class);
-                i.putExtra(TopTracksActivity.ARTIST_NAME_EXTRA, mList.get(position).name);
-                i.putExtra(TopTracksActivity.ARTIST_ID_EXTRA, mList.get(position).id);
-                startActivity(i);
-            }
-        });
+        }
+        else{
+            list = savedInstanceState.getParcelableArrayList("key");
+        }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList("key", mList);
+        outState.putParcelableArrayList("key", list);
         super.onSaveInstanceState(outState);
     }
 
@@ -124,6 +116,17 @@ public class MainActivity extends Activity {
             }
             public boolean onQueryTextSubmit(String query) {
                 return true;
+            }
+        });
+        mAdapter = new ArtistAdapter(this, R.layout.artist_item, mList);
+        mListView.setAdapter(mAdapter);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> av, View v, int position, long l) {
+                Intent i = new Intent(getBaseContext(), TopTracksActivity.class);
+                i.putExtra(TopTracksActivity.ARTIST_NAME_EXTRA, mList.get(position).name);
+                i.putExtra(TopTracksActivity.ARTIST_ID_EXTRA, mList.get(position).id);
+                startActivity(i);
             }
         });
         return true;
