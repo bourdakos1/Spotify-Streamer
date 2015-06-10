@@ -45,6 +45,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.inject(this);
 
         if(savedInstanceState == null || !savedInstanceState.containsKey("key")) {
 
@@ -52,6 +53,18 @@ public class MainActivity extends Activity {
         else{
             list = savedInstanceState.getParcelableArrayList("key");
         }
+
+        mAdapter = new ArtistAdapter(this, R.layout.artist_item, mList);
+        mListView.setAdapter(mAdapter);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> av, View v, int position, long l) {
+                Intent i = new Intent(getBaseContext(), TopTracksActivity.class);
+                i.putExtra(TopTracksActivity.ARTIST_NAME_EXTRA, mList.get(position).name);
+                i.putExtra(TopTracksActivity.ARTIST_ID_EXTRA, mList.get(position).id);
+                startActivity(i);
+            }
+        });
     }
 
     @Override
@@ -64,7 +77,6 @@ public class MainActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.options_menu, menu);
-        ButterKnife.inject(this);
 
         mToast = Toast.makeText(MainActivity.this, "No results found.", Toast.LENGTH_SHORT);
 
@@ -81,6 +93,7 @@ public class MainActivity extends Activity {
                     public void success(ArtistsPager artistsPager, Response response) {
                         mList.clear();
                         mList.addAll(artistsPager.artists.items);
+                        list.add(new MyParcelable(0, "", ""));
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -114,19 +127,9 @@ public class MainActivity extends Activity {
                 });
                 return true;
             }
+
             public boolean onQueryTextSubmit(String query) {
                 return true;
-            }
-        });
-        mAdapter = new ArtistAdapter(this, R.layout.artist_item, mList);
-        mListView.setAdapter(mAdapter);
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> av, View v, int position, long l) {
-                Intent i = new Intent(getBaseContext(), TopTracksActivity.class);
-                i.putExtra(TopTracksActivity.ARTIST_NAME_EXTRA, mList.get(position).name);
-                i.putExtra(TopTracksActivity.ARTIST_ID_EXTRA, mList.get(position).id);
-                startActivity(i);
             }
         });
         return true;
