@@ -27,7 +27,6 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-
 public class MainActivity extends Activity {
     private ArtistAdapter mAdapter;
     private Toast mToast;
