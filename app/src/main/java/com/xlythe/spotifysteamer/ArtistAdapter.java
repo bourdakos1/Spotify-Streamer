@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.ButterKnife;
@@ -20,13 +22,13 @@ import kaaes.spotify.webapi.android.models.Track;
 /**
  * Created by Niko on 6/8/15.
  */
-public class ArtistAdapter extends ArrayAdapter<Artist>{
+public class ArtistAdapter extends ArrayAdapter<ArtistParcelable>{
 
     private Context mContext;
     private int mLayoutResourceId;
-    private List<Artist> mArtists;
+    private ArrayList<ArtistParcelable> mArtists = new ArrayList<>();
 
-    public ArtistAdapter(Context context, int layoutResourceId, List<Artist> artists) {
+    public ArtistAdapter(Context context, int layoutResourceId, ArrayList<ArtistParcelable> artists) {
         super(context, layoutResourceId, artists);
         mLayoutResourceId = layoutResourceId;
         mContext = context;
@@ -48,7 +50,7 @@ public class ArtistAdapter extends ArrayAdapter<Artist>{
         Artist artist = mArtists.get(position);
 
         holder.artist.setText(artist.name);
-        if (artist.images.size()>0) {
+        if (!artist.images.isEmpty()) {
             Picasso.with(mContext).load(artist.images.get(0).url).into(holder.image);
         }
 

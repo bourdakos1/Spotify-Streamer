@@ -10,15 +10,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -32,11 +29,9 @@ import retrofit.client.Response;
 
 
 public class MainActivity extends Activity {
-
-    private List<Artist> mList = new ArrayList<>();
     private ArtistAdapter mAdapter;
     private Toast mToast;
-    ArrayList<MyParcelable> list = new ArrayList<>();
+    private ArrayList<ArtistParcelable> mList = new ArrayList<>();
 
     @InjectView(R.id.list_view) ListView mListView;
     @InjectView(R.id.not_found) ImageView mNotFound;
@@ -51,7 +46,7 @@ public class MainActivity extends Activity {
 
         }
         else{
-            list = savedInstanceState.getParcelableArrayList("key");
+            mList = savedInstanceState.getParcelableArrayList("key");
         }
 
         mAdapter = new ArtistAdapter(this, R.layout.artist_item, mList);
@@ -69,7 +64,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList("key", list);
+        outState.putParcelableArrayList("key", mList);
         super.onSaveInstanceState(outState);
     }
 
@@ -91,9 +86,12 @@ public class MainActivity extends Activity {
                 spotify.searchArtists(newText, new Callback<ArtistsPager>() {
                     @Override
                     public void success(ArtistsPager artistsPager, Response response) {
+                        //mList.clear();
+                        //mList.addAll(artistsPager.artists.items);
                         mList.clear();
-                        mList.addAll(artistsPager.artists.items);
-                        list.add(new MyParcelable(0,"",""));
+                        for (Artist artist : artistsPager.artists.items) {
+                            mList.add(new ArtistParcelable(artist));
+                        }
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
