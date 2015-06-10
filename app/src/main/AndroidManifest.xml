@@ -21,7 +21,7 @@
                 android:resource="@xml/searchable" />
         </activity>
         <activity
-            android:name=".TopTracks"
+            android:name=".TopTracksActivity"
             android:label="@string/title_activity_top_tracks" >
         </activity>
     </application>

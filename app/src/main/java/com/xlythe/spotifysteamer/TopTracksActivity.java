@@ -6,12 +6,15 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Track;
@@ -21,7 +24,7 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 
-public class TopTracks extends Activity {
+public class TopTracksActivity extends Activity {
     public static String ARTIST_NAME_EXTRA = "artist_name";
     public static String ARTIST_ID_EXTRA = "artist_id";
 
@@ -29,20 +32,21 @@ public class TopTracks extends Activity {
     private String mArtistId;
     private Map<String, Object> mQuery = new HashMap<>();
     private List<Track> mList = new ArrayList<>();
-    private ListView mListView;
     private TrackAdapter mAdapter;
+
+    @InjectView(R.id.list_view) ListView mListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_top_tracks);
+        ButterKnife.inject(this);
 
         SpotifyApi api = new SpotifyApi();
         final SpotifyService spotify = api.getService();
 
         mArtistName = getIntent().getStringExtra(ARTIST_NAME_EXTRA);
         mArtistId = getIntent().getStringExtra(ARTIST_ID_EXTRA);
-        mListView = (ListView) findViewById(R.id.list_view);
         mQuery.put(spotify.COUNTRY, "US");
 
         getActionBar().setSubtitle(mArtistName);
@@ -63,6 +67,12 @@ public class TopTracks extends Activity {
             @Override
             public void failure(RetrofitError error) {
                 Log.d("Spotify", error.toString());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(TopTracksActivity.this, "No tracks found.", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
         mAdapter = new TrackAdapter(this, R.layout.track_item, mList);

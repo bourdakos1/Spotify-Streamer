@@ -12,6 +12,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import kaaes.spotify.webapi.android.models.Track;
 
 /**
@@ -31,23 +33,35 @@ public class TrackAdapter extends ArrayAdapter<Track> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View view, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(mLayoutResourceId, parent, false);
-
-        ImageView albumImage = (ImageView) rowView.findViewById(R.id.album_image);
-        TextView albumName = (TextView) rowView.findViewById(R.id.album_name);
-        TextView trackName = (TextView) rowView.findViewById(R.id.track_name);
+        ViewHolder holder;
+        if (view != null) {
+            holder = (ViewHolder) view.getTag();
+        } else {
+            view = inflater.inflate(mLayoutResourceId, parent, false);
+            holder = new ViewHolder(view);
+            view.setTag(holder);
+        }
 
         Track track = mTracks.get(position);
-        rowView.setTag(track);
 
-        albumName.setText(track.album.name);
-        trackName.setText(track.name);
+        holder.albumName.setText(track.album.name);
+        holder.trackName.setText(track.name);
         if (track.album.images.size()>0) {
-            Picasso.with(mContext).load(track.album.images.get(0).url).into(albumImage);
+            Picasso.with(mContext).load(track.album.images.get(0).url).into(holder.albumImage);
         }
-        //track.preview_url; for part 2
-        return rowView;
+
+        return view;
+    }
+
+    static class ViewHolder {
+        @InjectView(R.id.album_image) ImageView albumImage;
+        @InjectView(R.id.album_name) TextView albumName;
+        @InjectView(R.id.track_name) TextView trackName;
+
+        public ViewHolder(View view) {
+            ButterKnife.inject(this, view);
+        }
     }
 }

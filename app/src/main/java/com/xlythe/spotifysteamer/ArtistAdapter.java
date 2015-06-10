@@ -1,9 +1,6 @@
 package com.xlythe.spotifysteamer;
 
-import android.app.Activity;
 import android.content.Context;
-import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +12,10 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import kaaes.spotify.webapi.android.models.Artist;
+import kaaes.spotify.webapi.android.models.Track;
 
 /**
  * Created by Niko on 6/8/15.
@@ -24,9 +24,9 @@ public class ArtistAdapter extends ArrayAdapter<Artist>{
 
     private Context mContext;
     private int mLayoutResourceId;
-    private List<Artist> mArtists;
+    private List<MyParcelable> mArtists;
 
-    public ArtistAdapter(Context context, int layoutResourceId, List<Artist> artists) {
+    public ArtistAdapter(Context context, int layoutResourceId, List<MyParcelable> artists) {
         super(context, layoutResourceId, artists);
         mLayoutResourceId = layoutResourceId;
         mContext = context;
@@ -34,20 +34,33 @@ public class ArtistAdapter extends ArrayAdapter<Artist>{
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View view, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(mLayoutResourceId, parent, false);
-
-        ImageView imageView = (ImageView) rowView.findViewById(R.id.image);
-        TextView textView = (TextView) rowView.findViewById(R.id.text);
+        ViewHolder holder;
+        if (view != null) {
+            holder = (ViewHolder) view.getTag();
+        } else {
+            view = inflater.inflate(mLayoutResourceId, parent, false);
+            holder = new ViewHolder(view);
+            view.setTag(holder);
+        }
 
         Artist artist = mArtists.get(position);
-        rowView.setTag(artist);
 
-        textView.setText(artist.name);
+        holder.artist.setText(artist.name);
         if (artist.images.size()>0) {
-            Picasso.with(mContext).load(artist.images.get(0).url).into(imageView);
+            Picasso.with(mContext).load(artist.images.get(0).url).into(holder.image);
         }
-        return rowView;
+
+        return view;
+    }
+
+    static class ViewHolder {
+        @InjectView(R.id.image) ImageView image;
+        @InjectView(R.id.text) TextView artist;
+
+        public ViewHolder(View view) {
+            ButterKnife.inject(this, view);
+        }
     }
 }

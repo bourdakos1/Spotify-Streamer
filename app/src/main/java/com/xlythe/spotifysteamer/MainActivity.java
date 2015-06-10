@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -19,6 +20,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Artist;
@@ -30,25 +33,47 @@ import retrofit.client.Response;
 
 public class MainActivity extends Activity {
 
-    private List<Artist> mList = new ArrayList<>();
-    private ListView mListView;
+    private List<MyParcelable> mList = new ArrayList<>();
     private ArtistAdapter mAdapter;
     private Toast mToast;
-    private ImageView mNotFound;
+
+    @InjectView(R.id.list_view) ListView mListView;
+    @InjectView(R.id.not_found) ImageView mNotFound;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if(savedInstanceState != null || savedInstanceState.containsKey("key")) {
+            mList = savedInstanceState.getParcelableArrayList("key");
+        }
+
+        mAdapter = new ArtistAdapter(this, R.layout.artist_item, mList);
+        mListView.setAdapter(mAdapter);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> av, View v, int position, long l) {
+                Intent i = new Intent(getBaseContext(), TopTracksActivity.class);
+                i.putExtra(TopTracksActivity.ARTIST_NAME_EXTRA, mList.get(position).name);
+                i.putExtra(TopTracksActivity.ARTIST_ID_EXTRA, mList.get(position).id);
+                startActivity(i);
+            }
+        });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList("key", mList);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.options_menu, menu);
+        ButterKnife.inject(this);
 
-        mListView = (ListView) findViewById(R.id.list_view);
-        mNotFound = (ImageView) findViewById(R.id.not_found);
         mToast = Toast.makeText(MainActivity.this, "No results found.", Toast.LENGTH_SHORT);
 
         SpotifyApi api = new SpotifyApi();
@@ -68,12 +93,11 @@ public class MainActivity extends Activity {
                             @Override
                             public void run() {
                                 mAdapter.notifyDataSetChanged();
-                                if (mList.size()==0) {
+                                if (mList.size() == 0) {
                                     mToast.show();
                                     mNotFound.setVisibility(View.VISIBLE);
                                     mListView.setVisibility(View.GONE);
-                                }
-                                else {
+                                } else {
                                     mToast.cancel();
                                     mNotFound.setVisibility(View.GONE);
                                     mListView.setVisibility(View.VISIBLE);
@@ -98,20 +122,8 @@ public class MainActivity extends Activity {
                 });
                 return true;
             }
-
             public boolean onQueryTextSubmit(String query) {
                 return true;
-            }
-        });
-        mAdapter = new ArtistAdapter(this, R.layout.artist_item, mList);
-        mListView.setAdapter(mAdapter);
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> av, View v, int position, long l) {
-                Intent i = new Intent(getBaseContext(), TopTracks.class);
-                i.putExtra(TopTracks.ARTIST_NAME_EXTRA, ((Artist) v.getTag()).name);
-                i.putExtra(TopTracks.ARTIST_ID_EXTRA, ((Artist) v.getTag()).id);
-                startActivity(i);
             }
         });
         return true;
