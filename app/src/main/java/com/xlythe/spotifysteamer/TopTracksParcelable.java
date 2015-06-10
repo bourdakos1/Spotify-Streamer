@@ -12,8 +12,7 @@ public class TopTracksParcelable extends Track implements Parcelable {
 
     public TopTracksParcelable(Track track){
         this.name = track.name;
-        //this.album.name = track.album.name;
-        //this.album.images = track.album.images;
+        this.album = track.album;
     }
 
     public int describeContents() {
