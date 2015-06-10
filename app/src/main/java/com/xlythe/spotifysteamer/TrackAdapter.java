@@ -46,11 +46,11 @@ public class TrackAdapter extends ArrayAdapter<TopTracksParcelable> {
 
         Track track = mTracks.get(position);
 
-        holder.albumName.setText(track.album.name);
+        //holder.albumName.setText(track.album.name);
         holder.trackName.setText(track.name);
-        if (track.album.images.size()>0) {
-            Picasso.with(mContext).load(track.album.images.get(0).url).into(holder.albumImage);
-        }
+//        if (track.album.images.size()>0) {
+//            Picasso.with(mContext).load(track.album.images.get(0).url).into(holder.albumImage);
+//        }
 
         return view;
     }

@@ -27,11 +27,11 @@ public class TopTracksActivity extends Activity {
     public static String ARTIST_NAME_EXTRA = "artist_name";
     public static String ARTIST_ID_EXTRA = "artist_id";
 
+    private TrackAdapter mAdapter;
     private String mArtistName;
     private String mArtistId;
     private Map<String, Object> mQuery = new HashMap<>();
     private ArrayList<TopTracksParcelable> mList = new ArrayList<>();
-    private TrackAdapter mAdapter;
 
     @InjectView(R.id.list_view) ListView mListView;
 
@@ -49,6 +49,13 @@ public class TopTracksActivity extends Activity {
         mQuery.put(spotify.COUNTRY, "US");
 
         getActionBar().setSubtitle(mArtistName);
+
+        if(savedInstanceState == null || !savedInstanceState.containsKey("key")) {
+
+        }
+        else{
+            mList = savedInstanceState.getParcelableArrayList("key");
+        }
 
         spotify.getArtistTopTrack(mArtistId, mQuery,new Callback<Tracks>() {
             @Override
@@ -78,6 +85,12 @@ public class TopTracksActivity extends Activity {
         });
         mAdapter = new TrackAdapter(this, R.layout.track_item, mList);
         mListView.setAdapter(mAdapter);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList("key", mList);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
