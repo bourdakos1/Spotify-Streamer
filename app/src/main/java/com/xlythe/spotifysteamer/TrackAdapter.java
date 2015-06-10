@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -19,13 +19,13 @@ import kaaes.spotify.webapi.android.models.Track;
 /**
  * Created by Niko on 6/9/15.
  */
-public class TrackAdapter extends ArrayAdapter<Track> {
+public class TrackAdapter extends ArrayAdapter<TopTracksParcelable> {
 
     private Context mContext;
     private int mLayoutResourceId;
-    private List<Track> mTracks;
+    private ArrayList<TopTracksParcelable> mTracks;
 
-    public TrackAdapter(Context context, int layoutResourceId, List<Track> tracks) {
+    public TrackAdapter(Context context, int layoutResourceId, ArrayList<TopTracksParcelable> tracks) {
         super(context, layoutResourceId, tracks);
         mLayoutResourceId = layoutResourceId;
         mContext = context;

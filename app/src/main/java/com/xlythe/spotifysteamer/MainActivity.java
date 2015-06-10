@@ -86,8 +86,6 @@ public class MainActivity extends Activity {
                 spotify.searchArtists(newText, new Callback<ArtistsPager>() {
                     @Override
                     public void success(ArtistsPager artistsPager, Response response) {
-                        //mList.clear();
-                        //mList.addAll(artistsPager.artists.items);
                         mList.clear();
                         for (Artist artist : artistsPager.artists.items) {
                             mList.add(new ArtistParcelable(artist));

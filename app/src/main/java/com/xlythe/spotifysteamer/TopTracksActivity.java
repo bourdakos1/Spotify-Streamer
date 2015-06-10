@@ -10,7 +10,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import butterknife.ButterKnife;
@@ -31,7 +30,7 @@ public class TopTracksActivity extends Activity {
     private String mArtistName;
     private String mArtistId;
     private Map<String, Object> mQuery = new HashMap<>();
-    private List<Track> mList = new ArrayList<>();
+    private ArrayList<TopTracksParcelable> mList = new ArrayList<>();
     private TrackAdapter mAdapter;
 
     @InjectView(R.id.list_view) ListView mListView;
@@ -55,7 +54,9 @@ public class TopTracksActivity extends Activity {
             @Override
             public void success(Tracks tracks, Response response) {
                 mList.clear();
-                mList.addAll(tracks.tracks);
+                for (Track track : tracks.tracks) {
+                    mList.add(new TopTracksParcelable(track));
+                }
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

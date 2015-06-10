@@ -10,14 +10,11 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import kaaes.spotify.webapi.android.models.Artist;
-import kaaes.spotify.webapi.android.models.Track;
 
 /**
  * Created by Niko on 6/8/15.
@@ -26,7 +23,7 @@ public class ArtistAdapter extends ArrayAdapter<ArtistParcelable>{
 
     private Context mContext;
     private int mLayoutResourceId;
-    private ArrayList<ArtistParcelable> mArtists = new ArrayList<>();
+    private ArrayList<ArtistParcelable> mArtists;
 
     public ArtistAdapter(Context context, int layoutResourceId, ArrayList<ArtistParcelable> artists) {
         super(context, layoutResourceId, artists);
