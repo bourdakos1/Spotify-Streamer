@@ -36,7 +36,7 @@ public class MainActivity extends Activity {
     private List<Artist> mList = new ArrayList<>();
     private ArtistAdapter mAdapter;
     private Toast mToast;
-    ArrayList<MyParcelable> list;
+    ArrayList<MyParcelable> list = new ArrayList<>();
 
     @InjectView(R.id.list_view) ListView mListView;
     @InjectView(R.id.not_found) ImageView mNotFound;
@@ -93,6 +93,7 @@ public class MainActivity extends Activity {
                     public void success(ArtistsPager artistsPager, Response response) {
                         mList.clear();
                         mList.addAll(artistsPager.artists.items);
+                        list.add(new MyParcelable(0,"",""));
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
