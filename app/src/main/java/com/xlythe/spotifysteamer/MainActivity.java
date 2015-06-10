@@ -93,7 +93,6 @@ public class MainActivity extends Activity {
                     public void success(ArtistsPager artistsPager, Response response) {
                         mList.clear();
                         mList.addAll(artistsPager.artists.items);
-                        list.add(new MyParcelable(0, "", ""));
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
