@@ -1,10 +1,13 @@
 package com.xlythe.spotifysteamer;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -74,7 +77,7 @@ public class TopTracksActivity extends Activity {
 
             @Override
             public void failure(RetrofitError error) {
-                Log.d("Spotify", error.toString());
+                Log.d("TopTracksActivity", error.toString());
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -85,6 +88,16 @@ public class TopTracksActivity extends Activity {
         });
         mAdapter = new TrackAdapter(this, R.layout.track_item, mList);
         mListView.setAdapter(mAdapter);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> av, View v, int position, long l) {
+                Intent i = new Intent(getBaseContext(), PlayerActivity.class);
+                i.putExtra("list", mList);
+                i.putExtra("position", position);
+                i.putExtra(PlayerActivity.ARTIST_NAME_EXTRA, mArtistName);
+                startActivity(i);
+            }
+        });
     }
 
     @Override
