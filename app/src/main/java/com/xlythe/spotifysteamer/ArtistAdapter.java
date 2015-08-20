@@ -44,12 +44,10 @@ public class ArtistAdapter extends ArrayAdapter<ArtistParcelable>{
             view.setTag(holder);
         }
 
-        Artist artist = mArtists.get(position);
+        ArtistParcelable artist = mArtists.get(position);
 
-        holder.artist.setText(artist.name);
-        if (!artist.images.isEmpty()) {
-            Picasso.with(mContext).load(artist.images.get(0).url).into(holder.image);
-        }
+        holder.artist.setText(artist.getArtistName());
+        Picasso.with(mContext).load(artist.getArtistImage()).into(holder.image);
 
         return view;
     }

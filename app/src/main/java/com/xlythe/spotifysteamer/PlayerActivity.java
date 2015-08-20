@@ -18,26 +18,14 @@ import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import kaaes.spotify.webapi.android.SpotifyApi;
-import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.Track;
-import kaaes.spotify.webapi.android.models.Tracks;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 
 
 public class PlayerActivity extends Activity {
-    public static String ARTIST_NAME_EXTRA = "artist_name";
-    public static String TRACK_NAME_EXTRA = "track_name";
-    public static String ALBUM_NAME_EXTRA = "album_name";
-    public static String ALBUM_ART_EXTRA = "album_art";
-    public static String URL_EXTRA = "url";
+    public static String TRACK_LIST_EXTRA = "track_list";
+    public static String POSITION_EXTRA = "position";
 
     @InjectView(R.id.play) Button mPlay;
     @InjectView(R.id.next) Button mNext;
@@ -52,13 +40,12 @@ public class PlayerActivity extends Activity {
 
     MediaPlayer mediaPlayer;
 
-    private String mArtistName;
     private String mAlbumName;
     private String mAlbumArt;
     private String mTrackName;
     private String mUrl;
     private int mTrackNumber;
-    private String time = "m:ss";
+    private String mTime = "m:ss";
     private ArrayList<TopTracksParcelable> mList = new ArrayList<>();
 
     @Override
@@ -67,9 +54,8 @@ public class PlayerActivity extends Activity {
         setContentView(R.layout.activity_player);
         ButterKnife.inject(this);
 
-        mList = getIntent().getParcelableArrayListExtra("list");
-        mTrackNumber = getIntent().getIntExtra("position", 0);
-        mArtistName = getIntent().getStringExtra(ARTIST_NAME_EXTRA);
+        mList = getIntent().getParcelableArrayListExtra(TRACK_LIST_EXTRA);
+        mTrackNumber = getIntent().getIntExtra(POSITION_EXTRA, 0);
 
         if(savedInstanceState == null || !savedInstanceState.containsKey("key")) {
 
@@ -78,14 +64,14 @@ public class PlayerActivity extends Activity {
             mList = savedInstanceState.getParcelableArrayList("key");
         }
 
-        mTrackName = mList.get(mTrackNumber).name;
-        mAlbumName = mList.get(mTrackNumber).album.name;
-        mAlbumArt = mList.get(mTrackNumber).album.images.get(0).url;
-        mUrl = mList.get(mTrackNumber).preview_url;
+        mTrackName = mList.get(mTrackNumber).getTrackName();
+        mAlbumName = mList.get(mTrackNumber).getAlbumName();
+        mAlbumArt = mList.get(mTrackNumber).getAlbumImage();
+        mUrl = mList.get(mTrackNumber).getPreviewUrl();
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mArtist.setText(mArtistName);
+                mArtist.setText(mList.get(mTrackNumber).getArtistName());
                 mAlbum.setText(mAlbumName);
                 Picasso.with(getBaseContext()).load(mAlbumArt).into(mImageView);
                 mTrack.setText(mTrackName);
@@ -101,7 +87,7 @@ public class PlayerActivity extends Activity {
 
                 mediaPlayer.start();
                 final int duration = mediaPlayer.getDuration();
-                mDuration.setText(DateFormat.format(time, duration));
+                mDuration.setText(DateFormat.format(mTime, duration));
                 mSeekBar.setMax(0);
                 mSeekBar.setMax(duration);
                 Thread t = new Thread() {
@@ -114,7 +100,7 @@ public class PlayerActivity extends Activity {
                                     @Override
                                     public void run() {
                                         int position = mediaPlayer.getCurrentPosition();
-                                        mPosition.setText(DateFormat.format(time, position));
+                                        mPosition.setText(DateFormat.format(mTime, position));
                                         mSeekBar.setProgress(position);
                                     }
                                 });
@@ -163,9 +149,8 @@ public class PlayerActivity extends Activity {
                         if (mTrackNumber<mList.size()-1)
                             mTrackNumber++;
                         Intent i = new Intent(getBaseContext(), PlayerActivity.class);
-                        i.putExtra("list", mList);
-                        i.putExtra("position", mTrackNumber);
-                        i.putExtra(PlayerActivity.ARTIST_NAME_EXTRA, mArtistName);
+                        i.putExtra(TRACK_LIST_EXTRA, mList);
+                        i.putExtra(POSITION_EXTRA, mTrackNumber);
                         startActivity(i);
                     }
                 });
@@ -175,9 +160,8 @@ public class PlayerActivity extends Activity {
                         if (mTrackNumber>0)
                             mTrackNumber--;
                         Intent i = new Intent(getBaseContext(), PlayerActivity.class);
-                        i.putExtra("list", mList);
-                        i.putExtra("position", mTrackNumber);
-                        i.putExtra(PlayerActivity.ARTIST_NAME_EXTRA, mArtistName);
+                        i.putExtra(TRACK_LIST_EXTRA, mList);
+                        i.putExtra(POSITION_EXTRA, mTrackNumber);
                         startActivity(i);
                     }
                 });

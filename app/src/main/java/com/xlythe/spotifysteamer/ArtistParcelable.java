@@ -8,12 +8,34 @@ import kaaes.spotify.webapi.android.models.Artist;
 /**
  * Created by Niko on 6/9/15.
  */
-public class ArtistParcelable extends Artist implements Parcelable {
+public class ArtistParcelable implements Parcelable {
+
+    private String mArtistName;
+    private String mArtistId;
+    private String mArtistImage;
+
+    public String getArtistName(){
+        return mArtistName;
+    }
+    public String getArtistId(){
+        return mArtistId;
+    }
+    public String getArtistImage(){
+        return mArtistImage;
+    }
 
     public ArtistParcelable(Artist artist){
-        this.name = artist.name;
-        this.id = artist.id;
-        this.images = artist.images;
+        mArtistName = artist.name;
+        mArtistId = artist.id;
+        if(!artist.images.isEmpty()) {
+            mArtistImage = artist.images.get(0).url;
+        }
+    }
+
+    private ArtistParcelable(Parcel in) {
+        mArtistName = in.readString();
+        mArtistId = in.readString();
+        mArtistImage = in.readString();
     }
 
     public int describeContents() {
@@ -21,11 +43,9 @@ public class ArtistParcelable extends Artist implements Parcelable {
     }
 
     public void writeToParcel(Parcel out, int flags) {
-        out.writeString(this.name);
-        out.writeString(this.id);
-        if(!this.images.isEmpty()) {
-            out.writeString(this.images.get(0).url);
-        }
+        out.writeString(mArtistName);
+        out.writeString(mArtistId);
+        out.writeString(mArtistImage);
     }
 
     public static final Parcelable.Creator<ArtistParcelable> CREATOR = new Parcelable.Creator<ArtistParcelable>() {
@@ -37,12 +57,4 @@ public class ArtistParcelable extends Artist implements Parcelable {
             return new ArtistParcelable[size];
         }
     };
-
-    private ArtistParcelable(Parcel in) {
-        this.name = in.readString();
-        this.id = in.readString();
-        if(!this.images.isEmpty()) {
-            this.images.get(0).url = in.readString();
-        }
-    }
 }

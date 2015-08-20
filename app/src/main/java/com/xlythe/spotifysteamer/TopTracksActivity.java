@@ -27,12 +27,10 @@ import retrofit.client.Response;
 
 
 public class TopTracksActivity extends Activity {
-    public static String ARTIST_NAME_EXTRA = "artist_name";
-    public static String ARTIST_ID_EXTRA = "artist_id";
+    public static String ARTIST_EXTRA = "artist";
+    private final static String TRACK_KEY = "track";
 
     private TrackAdapter mAdapter;
-    private String mArtistName;
-    private String mArtistId;
     private Map<String, Object> mQuery = new HashMap<>();
     private ArrayList<TopTracksParcelable> mList = new ArrayList<>();
 
@@ -47,54 +45,51 @@ public class TopTracksActivity extends Activity {
         SpotifyApi api = new SpotifyApi();
         final SpotifyService spotify = api.getService();
 
-        mArtistName = getIntent().getStringExtra(ARTIST_NAME_EXTRA);
-        mArtistId = getIntent().getStringExtra(ARTIST_ID_EXTRA);
+        ArtistParcelable artist = getIntent().getParcelableExtra(ARTIST_EXTRA);
         mQuery.put(spotify.COUNTRY, "US");
 
-        getActionBar().setSubtitle(mArtistName);
+        getActionBar().setSubtitle(artist.getArtistName());
 
-        if(savedInstanceState == null || !savedInstanceState.containsKey("key")) {
+        if(savedInstanceState == null || !savedInstanceState.containsKey(TRACK_KEY)) {
+            spotify.getArtistTopTrack(artist.getArtistId(), mQuery,new Callback<Tracks>() {
+                @Override
+                public void success(Tracks tracks, Response response) {
+                    mList.clear();
+                    for (Track track : tracks.tracks) {
+                        mList.add(new TopTracksParcelable(track));
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
 
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.d("TopTracksActivity", error.toString());
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(TopTracksActivity.this, "No tracks found.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
         }
         else{
-            mList = savedInstanceState.getParcelableArrayList("key");
+            mList = savedInstanceState.getParcelableArrayList(TRACK_KEY);
         }
 
-        spotify.getArtistTopTrack(mArtistId, mQuery,new Callback<Tracks>() {
-            @Override
-            public void success(Tracks tracks, Response response) {
-                mList.clear();
-                for (Track track : tracks.tracks) {
-                    mList.add(new TopTracksParcelable(track));
-                }
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mAdapter.notifyDataSetChanged();
-                    }
-                });
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d("TopTracksActivity", error.toString());
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(TopTracksActivity.this, "No tracks found.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        });
         mAdapter = new TrackAdapter(this, R.layout.track_item, mList);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> av, View v, int position, long l) {
                 Intent i = new Intent(getBaseContext(), PlayerActivity.class);
-                i.putExtra("list", mList);
-                i.putExtra("position", position);
-                i.putExtra(PlayerActivity.ARTIST_NAME_EXTRA, mArtistName);
+                i.putExtra(PlayerActivity.TRACK_LIST_EXTRA, mList);
+                i.putExtra(PlayerActivity.POSITION_EXTRA, position);
                 startActivity(i);
             }
         });
@@ -102,7 +97,7 @@ public class TopTracksActivity extends Activity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList("key", mList);
+        outState.putParcelableArrayList(TRACK_KEY, mList);
         super.onSaveInstanceState(outState);
     }
 

@@ -31,6 +31,7 @@ public class MainActivity extends Activity {
     private ArtistAdapter mAdapter;
     private Toast mToast;
     private ArrayList<ArtistParcelable> mList = new ArrayList<>();
+    private final static String ARTIST_KEY = "artist";
 
     @InjectView(R.id.list_view) ListView mListView;
     @InjectView(R.id.not_found) ImageView mNotFound;
@@ -41,11 +42,8 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         ButterKnife.inject(this);
 
-        if(savedInstanceState == null || !savedInstanceState.containsKey("key")) {
-
-        }
-        else{
-            mList = savedInstanceState.getParcelableArrayList("key");
+        if(savedInstanceState != null && savedInstanceState.containsKey(ARTIST_KEY)) {
+            mList = savedInstanceState.getParcelableArrayList(ARTIST_KEY);
         }
 
         mAdapter = new ArtistAdapter(this, R.layout.artist_item, mList);
@@ -54,8 +52,7 @@ public class MainActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> av, View v, int position, long l) {
                 Intent i = new Intent(getBaseContext(), TopTracksActivity.class);
-                i.putExtra(TopTracksActivity.ARTIST_NAME_EXTRA, mList.get(position).name);
-                i.putExtra(TopTracksActivity.ARTIST_ID_EXTRA, mList.get(position).id);
+                i.putExtra(TopTracksActivity.ARTIST_EXTRA, mList.get(position));
                 startActivity(i);
             }
         });
@@ -63,7 +60,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList("key", mList);
+        outState.putParcelableArrayList(ARTIST_KEY, mList);
         super.onSaveInstanceState(outState);
     }
 
