@@ -135,7 +135,6 @@ public class PlayerService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d("", "destroyed");
         if (mThread!=null)
             mThread.interrupt();
         if (mMediaPlayer.isPlaying())
