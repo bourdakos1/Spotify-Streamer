@@ -75,33 +75,38 @@ public class PlayerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String url = intent.getStringExtra(URL_EXTRA);
-        playMedia(url);
+        if (intent != null) {
+            String url = intent.getStringExtra(URL_EXTRA);
+            playMedia(url);
 
-        Intent broadcastIntent = new Intent(PlayerService.ACTION_STATUS);
-        broadcastIntent.putExtra(IS_PLAYING_EXTRA, true);
-        sendStickyBroadcast(broadcastIntent);
+            Intent broadcastIntent = new Intent(PlayerService.ACTION_STATUS);
+            broadcastIntent.putExtra(IS_PLAYING_EXTRA, true);
+            sendStickyBroadcast(broadcastIntent);
 
-        broadcastIntent = new Intent(PlayerService.ACTION_DURATION);
-        broadcastIntent.putExtra(DURATION_EXTRA, mMediaPlayer.getDuration());
-        sendStickyBroadcast(broadcastIntent);
+            broadcastIntent = new Intent(PlayerService.ACTION_DURATION);
+            broadcastIntent.putExtra(DURATION_EXTRA, mMediaPlayer.getDuration());
+            sendStickyBroadcast(broadcastIntent);
 
-        mThread = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    while (!isInterrupted()) {
-                        Thread.sleep(100);
-                        Intent broadcastIntent = new Intent(PlayerService.ACTION_POSITION);
-                        broadcastIntent.putExtra(POSITION_EXTRA, mMediaPlayer.getCurrentPosition());
-                        sendStickyBroadcast(broadcastIntent);
+            mThread = new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        while (!isInterrupted()) {
+                            Thread.sleep(100);
+                            Intent broadcastIntent = new Intent(PlayerService.ACTION_POSITION);
+                            broadcastIntent.putExtra(POSITION_EXTRA, mMediaPlayer.getCurrentPosition());
+                            sendStickyBroadcast(broadcastIntent);
+                        }
+                    } catch (InterruptedException e) {
+
                     }
-                } catch (InterruptedException e) {
-
                 }
-            }
-        };
-        mThread.start();
+            };
+            mThread.start();
+        }
+        else{
+            stopService(new Intent(this, PlayerService.class));
+        }
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -130,10 +135,13 @@ public class PlayerService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d("","destroyed");
-        mThread.interrupt();
-        mMediaPlayer.stop();
-        mMediaPlayer.release();
+        Log.d("", "destroyed");
+        if (mThread!=null)
+            mThread.interrupt();
+        if (mMediaPlayer!=null) {
+            mMediaPlayer.stop();
+            mMediaPlayer.release();
+        }
         destroy();
     }
 

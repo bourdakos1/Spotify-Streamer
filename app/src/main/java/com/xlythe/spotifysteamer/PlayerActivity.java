@@ -26,17 +26,20 @@ public class PlayerActivity extends Activity {
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(PlayerService.ACTION_STATUS)) {
-                mIsPlaying = intent.getBooleanExtra(PlayerService.IS_PLAYING_EXTRA, true);
-            }
-            else if(intent.getAction().equals(PlayerService.ACTION_POSITION)){
-                mMediaPosition = intent.getIntExtra(PlayerService.POSITION_EXTRA, 0);
-            }
-            else if(intent.getAction().equals(PlayerService.ACTION_DURATION)){
-                mMediaDuration = intent.getIntExtra(PlayerService.DURATION_EXTRA, 0);
-                mDuration.setText(DateFormat.format(mTime, mMediaDuration));
-                mSeekBar.setMax(0);
-                mSeekBar.setMax(mMediaDuration);
+            String action = intent.getAction();
+            switch(action) {
+                case PlayerService.ACTION_STATUS:
+                    mIsPlaying = intent.getBooleanExtra(PlayerService.IS_PLAYING_EXTRA, true);
+                    break;
+                case PlayerService.ACTION_POSITION:
+                    mMediaPosition = intent.getIntExtra(PlayerService.POSITION_EXTRA, 0);
+                    break;
+                case PlayerService.ACTION_DURATION:
+                    mMediaDuration = intent.getIntExtra(PlayerService.DURATION_EXTRA, 0);
+                    mDuration.setText(DateFormat.format(mTime, mMediaDuration));
+                    mSeekBar.setMax(0);
+                    mSeekBar.setMax(mMediaDuration);
+                    break;
             }
         }
     };
@@ -74,10 +77,6 @@ public class PlayerActivity extends Activity {
         mList = getIntent().getParcelableArrayListExtra(TRACK_LIST_EXTRA);
         mTrackNumber = getIntent().getIntExtra(POSITION_EXTRA, 0);
 
-        mTrackName = mList.get(mTrackNumber).getTrackName();
-        mAlbumName = mList.get(mTrackNumber).getAlbumName();
-        mAlbumArt = mList.get(mTrackNumber).getAlbumImage();
-
         Intent serviceIntent = new Intent(getBaseContext(), PlayerService.class);
         serviceIntent.putExtra(PlayerService.URL_EXTRA, mList.get(mTrackNumber).getPreviewUrl());
         startService(serviceIntent);
@@ -88,10 +87,7 @@ public class PlayerActivity extends Activity {
         filter.addAction(PlayerService.ACTION_DURATION);
         getApplicationContext().registerReceiver(mReceiver, filter);
 
-        mArtist.setText(mList.get(mTrackNumber).getArtistName());
-        mAlbum.setText(mAlbumName);
-        Picasso.with(getBaseContext()).load(mAlbumArt).into(mImageView);
-        mTrack.setText(mTrackName);
+        invalidateUI();
 
         new Thread() {
             @Override
@@ -168,7 +164,19 @@ public class PlayerActivity extends Activity {
         });
     }
 
+    private void invalidateUI(){
+        mTrackName = mList.get(mTrackNumber).getTrackName();
+        mAlbumName = mList.get(mTrackNumber).getAlbumName();
+        mAlbumArt = mList.get(mTrackNumber).getAlbumImage();
+
+        mArtist.setText(mList.get(mTrackNumber).getArtistName());
+        mAlbum.setText(mAlbumName);
+        Picasso.with(getBaseContext()).load(mAlbumArt).into(mImageView);
+        mTrack.setText(mTrackName);
+    }
+
     private void sendBroadcast(){
+        invalidateUI();
         Intent broadcastIntent = new Intent(PlayerService.ACTION_NEW_TRACK);
         broadcastIntent.putExtra(PlayerService.URL_EXTRA, mList.get(mTrackNumber).getPreviewUrl());
         sendBroadcast(broadcastIntent);
