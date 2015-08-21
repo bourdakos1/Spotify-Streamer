@@ -41,8 +41,8 @@ public class PlayerActivity extends Activity {
         }
     };
 
-    public static String TRACK_LIST_EXTRA = "track_list";
-    public static String POSITION_EXTRA = "position";
+    public static final String TRACK_LIST_EXTRA = "track_list";
+    public static final String POSITION_EXTRA = "position";
 
     @InjectView(R.id.play) Button mPlay;
     @InjectView(R.id.next) Button mNext;
@@ -155,11 +155,7 @@ public class PlayerActivity extends Activity {
             public void onClick(View v) {
                 if (mTrackNumber<mList.size()-1)
                     mTrackNumber++;
-                Intent i = getIntent();
-                i.putExtra(TRACK_LIST_EXTRA, mList);
-                i.putExtra(POSITION_EXTRA, mTrackNumber);
-                finish();
-                startActivity(i);
+                sendBroadcast();
             }
         });
 
@@ -167,13 +163,15 @@ public class PlayerActivity extends Activity {
             public void onClick(View v) {
                 if (mTrackNumber>0)
                     mTrackNumber--;
-                Intent i = getIntent();
-                i.putExtra(TRACK_LIST_EXTRA, mList);
-                i.putExtra(POSITION_EXTRA, mTrackNumber);
-                finish();
-                startActivity(i);
+                sendBroadcast();
             }
         });
+    }
+
+    private void sendBroadcast(){
+        Intent broadcastIntent = new Intent(PlayerService.ACTION_NEW_TRACK);
+        broadcastIntent.putExtra(PlayerService.URL_EXTRA, mList.get(mTrackNumber).getPreviewUrl());
+        sendBroadcast(broadcastIntent);
     }
 
     @Override

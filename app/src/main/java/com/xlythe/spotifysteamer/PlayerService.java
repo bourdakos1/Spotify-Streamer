@@ -26,9 +26,9 @@ public class PlayerService extends Service {
                     mMediaPlayer.pause();
                     sendBroadcast();
                     break;
-                case ACTION_NEXT_TRACK:
-                    break;
-                case ACTION_PREV_TRACK:
+                case ACTION_NEW_TRACK:
+                    String url = intent.getStringExtra(URL_EXTRA);
+                    playMedia(url);
                     break;
                 case ACTION_SEEK_TO:
                     mMediaPlayer.seekTo(intent.getIntExtra(PROGRESS_EXTRA, 0));
@@ -43,8 +43,7 @@ public class PlayerService extends Service {
 
     public static final String ACTION_PLAY_TRACK = "com.xlythe.spotifysteamer.action.PLAY";
     public static final String ACTION_PAUSE_TRACK = "com.xlythe.spotifysteamer.action.STOP";
-    public static final String ACTION_NEXT_TRACK = "com.xlythe.spotifysteamer.action.NEXT";
-    public static final String ACTION_PREV_TRACK = "com.xlythe.spotifysteamer.action.PREV";
+    public static final String ACTION_NEW_TRACK = "com.xlythe.spotifysteamer.action.NEW";
     public static final String ACTION_SEEK_TO = "com.xlythe.spotifysteamer.action.SEEK_TO";
     public static final String ACTION_STATUS = "com.xlythe.spotifysteamer.action.STATUS";
     public static final String ACTION_POSITION = "com.xlythe.spotifysteamer.action.POSITION";
@@ -65,8 +64,7 @@ public class PlayerService extends Service {
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_PLAY_TRACK);
         filter.addAction(ACTION_PAUSE_TRACK);
-        filter.addAction(ACTION_NEXT_TRACK);
-        filter.addAction(ACTION_PREV_TRACK);
+        filter.addAction(ACTION_NEW_TRACK);
         filter.addAction(ACTION_SEEK_TO);
         getApplicationContext().registerReceiver(mReceiver, filter);
     }
@@ -77,21 +75,9 @@ public class PlayerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String mUrl = intent.getStringExtra(URL_EXTRA);
-        Log.d("", mUrl + "");
-        if (mMediaPlayer.isPlaying()) {
-            mMediaPlayer.stop();
-            mMediaPlayer.release();
-            mMediaPlayer = new MediaPlayer();
-        }
-        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        try {
-            mMediaPlayer.setDataSource(mUrl);
-            mMediaPlayer.prepare();
-        } catch (IOException ioe) {
-            Log.d("PlayerActivity", "Media not found");
-        }
-        mMediaPlayer.start();
+        String url = intent.getStringExtra(URL_EXTRA);
+        playMedia(url);
+
         Intent broadcastIntent = new Intent(PlayerService.ACTION_STATUS);
         broadcastIntent.putExtra(IS_PLAYING_EXTRA, true);
         sendStickyBroadcast(broadcastIntent);
@@ -119,6 +105,22 @@ public class PlayerService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
+    private void playMedia(String url){
+        if (mMediaPlayer.isPlaying()) {
+            mMediaPlayer.stop();
+            mMediaPlayer.release();
+            mMediaPlayer = new MediaPlayer();
+        }
+        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        try {
+            mMediaPlayer.setDataSource(url);
+            mMediaPlayer.prepare();
+        } catch (IOException ioe) {
+            Log.d("PlayerActivity", "Media not found");
+        }
+        mMediaPlayer.start();
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -128,7 +130,11 @@ public class PlayerService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d("","destroyed");
         mThread.interrupt();
+        mMediaPlayer.stop();
+        mMediaPlayer.release();
+        destroy();
     }
 
     @Override
