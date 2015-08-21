@@ -138,9 +138,11 @@ public class PlayerService extends Service {
         Log.d("", "destroyed");
         if (mThread!=null)
             mThread.interrupt();
-        if (mMediaPlayer!=null) {
+        if (mMediaPlayer.isPlaying())
             mMediaPlayer.stop();
+        if (mMediaPlayer != null) {
             mMediaPlayer.release();
+            mMediaPlayer = null;
         }
         destroy();
     }
