@@ -189,6 +189,12 @@ public class PlayerActivity extends Activity {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        getApplicationContext().unregisterReceiver(mReceiver);
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
     }

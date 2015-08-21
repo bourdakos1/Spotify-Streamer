@@ -39,7 +39,8 @@ public class PlayerService extends Service {
         }
     };
 
-    private MediaPlayer mMediaPlayer = new MediaPlayer();;
+    private MediaPlayer mMediaPlayer = new MediaPlayer();
+    private Thread mThread;
 
     public static final String ACTION_PLAY_TRACK = "com.xlythe.spotifysteamer.action.PLAY";
     public static final String ACTION_PAUSE_TRACK = "com.xlythe.spotifysteamer.action.STOP";
@@ -78,7 +79,7 @@ public class PlayerService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String mUrl = intent.getStringExtra(URL_EXTRA);
-                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
             mMediaPlayer.setDataSource(mUrl);
             mMediaPlayer.prepare();
@@ -94,7 +95,7 @@ public class PlayerService extends Service {
         broadcastIntent.putExtra(DURATION_EXTRA, mMediaPlayer.getDuration());
         sendStickyBroadcast(broadcastIntent);
 
-        new Thread() {
+        mThread = new Thread() {
             @Override
             public void run() {
                 try {
@@ -108,7 +109,8 @@ public class PlayerService extends Service {
 
                 }
             }
-        }.start();
+        };
+        mThread.start();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -116,6 +118,12 @@ public class PlayerService extends Service {
     public void onCreate() {
         super.onCreate();
         init();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mThread.interrupt();
     }
 
     @Override
