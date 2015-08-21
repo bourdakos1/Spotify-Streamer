@@ -3,6 +3,7 @@
     package="com.xlythe.spotifysteamer" >
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.BROADCAST_STICKY" />
 
     <application
         android:allowBackup="true"
@@ -30,6 +31,12 @@
             android:name=".PlayerActivity"
             android:label="@string/title_activity_player" >
         </activity>
+        <service
+            android:name=".PlayerService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+
     </application>
 
 </manifest>
