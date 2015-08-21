@@ -9,6 +9,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Switch;
 
 import java.io.IOException;
 
@@ -16,29 +17,24 @@ public class PlayerService extends Service {
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(ACTION_PLAY_TRACK)) {
-                Log.d("Receiver", "PLAY");
-                mMediaPlayer.start();
-                Intent broadcastIntent = new Intent(PlayerService.ACTION_STATUS);
-                broadcastIntent.putExtra(IS_PLAYING_EXTRA, true);
-                sendStickyBroadcast(broadcastIntent);
-            }
-            else if (intent.getAction().equals(ACTION_PAUSE_TRACK)){
-                Log.d("Receiver", "PAUSE");
-                mMediaPlayer.pause();
-                Intent broadcastIntent = new Intent(PlayerService.ACTION_STATUS);
-                broadcastIntent.putExtra(IS_PLAYING_EXTRA, false);
-                sendStickyBroadcast(broadcastIntent);
-            }
-            else if (intent.getAction().equals(ACTION_NEXT_TRACK)){
-                Log.d("Receiver", "NEXT");
-            }
-            else if (intent.getAction().equals(ACTION_PREV_TRACK)){
-                Log.d("Receiver", "PREV");
-            }
-            else if (intent.getAction().equals(ACTION_SEEK_TO)){
-                Log.d("Receiver", "SEEK_TO");
-                mMediaPlayer.seekTo(intent.getIntExtra(PROGRESS_EXTRA,0));
+            String action = intent.getAction();
+            switch(action){
+                case ACTION_PLAY_TRACK:
+                    mMediaPlayer.start();
+                    sendBroadcast();
+                    break;
+                case ACTION_PAUSE_TRACK:
+                    mMediaPlayer.pause();
+                    sendBroadcast();
+                    break;
+                case ACTION_NEXT_TRACK:
+                    break;
+                case ACTION_PREV_TRACK:
+                    break;
+                case ACTION_SEEK_TO:
+                    mMediaPlayer.seekTo(intent.getIntExtra(PROGRESS_EXTRA, 0));
+                    break;
+
             }
         }
     };
@@ -59,6 +55,12 @@ public class PlayerService extends Service {
     public static final String DURATION_EXTRA = "duration";
     public static final String URL_EXTRA = "url";
 
+    private void sendBroadcast(){
+        Intent broadcastIntent = new Intent(PlayerService.ACTION_STATUS);
+        broadcastIntent.putExtra(IS_PLAYING_EXTRA, mMediaPlayer.isPlaying());
+        sendStickyBroadcast(broadcastIntent);
+    }
+
     private void init(){
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_PLAY_TRACK);
@@ -71,9 +73,6 @@ public class PlayerService extends Service {
 
     private void destroy(){
         getApplicationContext().unregisterReceiver(mReceiver);
-    }
-
-    public PlayerService() {
     }
 
     @Override
