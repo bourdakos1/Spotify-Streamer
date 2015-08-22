@@ -15,11 +15,11 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         app:border_width="0dp"
-        app:border_color="#000000"/>
+        app:border_color="@color/black"/>
 
     <TextView
         android:id="@+id/text"
-        android:textColor="@color/accent"
+        android:textColor="@color/white"
         android:textSize="18sp"
         android:layout_gravity="center_vertical"
         android:layout_width="wrap_content"

@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:contentScrim="#000000"
+            app:contentScrim="@color/black"
             app:expandedTitleMarginStart="48dp"
             app:expandedTitleMarginEnd="64dp"
             android:fitsSystemWindows="true">
@@ -55,7 +55,7 @@
         android:id="@+id/fabBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:backgroundTint="#00c853"
+        app:backgroundTint="@color/green"
         android:layout_marginRight="16dp"
         app:layout_anchor="@+id/app_bar_layout"
         app:layout_anchorGravity="bottom|right|end"
