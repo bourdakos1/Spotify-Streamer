@@ -1,10 +1,14 @@
 <resources>
     <string name="app_name">Spotify Steamer</string>
 
-    <string name="search">Search Artist</string>
+    <string name="search">Search</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_top_tracks">Top 10 Tracks</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_player">PlayerActivity</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_fake">FakeActivity</string>
 </resources>

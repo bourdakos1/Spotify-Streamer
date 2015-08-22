@@ -1,24 +1,24 @@
 package com.xlythe.spotifysteamer;
 
-import android.app.Activity;
-import android.app.SearchManager;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Bind;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Artist;
@@ -27,66 +27,60 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class MainActivity extends Activity {
+public class SearchFragment extends Fragment {
     private ArtistAdapter mAdapter;
     private Toast mToast;
     private ArrayList<ArtistParcelable> mList = new ArrayList<>();
     private final static String ARTIST_KEY = "artist";
 
-    @InjectView(R.id.list_view) ListView mListView;
-    @InjectView(R.id.not_found) ImageView mNotFound;
+    @Bind(R.id.list_view) ListView mListView;
+    @Bind(R.id.not_found) ImageView mNotFound;
+    @Bind(R.id.search_view) EditText mSearchView;
+    @Bind(R.id.clear) ImageButton mClear;
+    @Bind(R.id.back) ImageButton mBack;
+
+    public SearchFragment() {
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ButterKnife.inject(this);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_search, container, false);
+        ButterKnife.bind(this,rootView);
 
         if(savedInstanceState != null && savedInstanceState.containsKey(ARTIST_KEY)) {
             mList = savedInstanceState.getParcelableArrayList(ARTIST_KEY);
         }
 
-        mAdapter = new ArtistAdapter(this, R.layout.artist_item, mList);
+        mAdapter = new ArtistAdapter(rootView.getContext(), R.layout.artist_item, mList);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> av, View v, int position, long l) {
-                Intent i = new Intent(getBaseContext(), TopTracksActivity.class);
-                i.putExtra(TopTracksActivity.ARTIST_EXTRA, mList.get(position));
-                startActivity(i);
+                ((MainActivity) getActivity()).replaceFragment(mList.get(position));
             }
         });
-    }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList(ARTIST_KEY, mList);
-        super.onSaveInstanceState(outState);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.options_menu, menu);
-
-        mToast = Toast.makeText(MainActivity.this, "No results found.", Toast.LENGTH_SHORT);
+        mToast = Toast.makeText(getActivity(), "No results found.", Toast.LENGTH_SHORT);
 
         SpotifyApi api = new SpotifyApi();
         final SpotifyService spotify = api.getService();
 
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        final SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            public boolean onQueryTextChange(String newText) {
-                spotify.searchArtists(newText, new Callback<ArtistsPager>() {
+        mSearchView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                spotify.searchArtists(charSequence.toString(), new Callback<ArtistsPager>() {
                     @Override
                     public void success(ArtistsPager artistsPager, Response response) {
                         mList.clear();
                         for (Artist artist : artistsPager.artists.items) {
                             mList.add(new ArtistParcelable(artist));
                         }
-                        runOnUiThread(new Runnable() {
+                        getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 mAdapter.notifyDataSetChanged();
@@ -107,7 +101,7 @@ public class MainActivity extends Activity {
                     public void failure(RetrofitError error) {
                         Log.d("Spotify", error.toString());
                         mList.clear();
-                        runOnUiThread(new Runnable() {
+                        getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 mAdapter.notifyDataSetChanged();
@@ -117,28 +111,37 @@ public class MainActivity extends Activity {
                         });
                     }
                 });
-                return true;
             }
 
-            public boolean onQueryTextSubmit(String query) {
-                return true;
+            @Override
+            public void afterTextChanged(Editable editable) {
             }
         });
-        return true;
+
+        mClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mSearchView.setText("");
+            }
+        });
+        mBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO: go back
+            }
+        });
+        return rootView;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    public void onDestroyView() {
+        super.onDestroyView();
+        mSearchView.setFocusable(false);
+    }
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList(ARTIST_KEY, mList);
+        super.onSaveInstanceState(outState);
     }
 }

@@ -1,6 +1,7 @@
 package com.xlythe.spotifysteamer;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,53 +14,61 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Bind;
 import kaaes.spotify.webapi.android.models.Track;
 
 /**
  * Created by Niko on 6/9/15.
  */
-public class TrackAdapter extends ArrayAdapter<TopTracksParcelable> {
-
-    private Context mContext;
-    private int mLayoutResourceId;
+public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.ViewHolder> {
     private ArrayList<TopTracksParcelable> mTracks;
+    private Context mContext;
 
-    public TrackAdapter(Context context, int layoutResourceId, ArrayList<TopTracksParcelable> tracks) {
-        super(context, layoutResourceId, tracks);
-        mLayoutResourceId = layoutResourceId;
-        mContext = context;
-        mTracks = tracks;
+    // Provide a reference to the views for each data item
+    // Complex data items may need more than one view per item, and
+    // you provide access to all the views for a data item in a view holder
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        // each data item is just a string in this case
+        @Bind(R.id.album_image) ImageView albumImage;
+        @Bind(R.id.album_name) TextView albumName;
+        @Bind(R.id.track_name) TextView trackName;
+
+        public ViewHolder(View v) {
+            super(v);
+            ButterKnife.bind(this, v);
+        }
     }
 
+    // Provide a suitable constructor (depends on the kind of dataset)
+    public TrackAdapter(ArrayList<TopTracksParcelable> tracks, Context context) {
+        mTracks = tracks;
+        mContext = context;
+    }
+
+    // Create new views (invoked by the layout manager)
     @Override
-    public View getView(int position, View view, ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        ViewHolder holder;
-        if (view != null) {
-            holder = (ViewHolder) view.getTag();
-        } else {
-            view = inflater.inflate(mLayoutResourceId, parent, false);
-            holder = new ViewHolder(view);
-            view.setTag(holder);
-        }
+    public TrackAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        // create a new view
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.track_item, parent, false);
+        // set the view's size, margins, paddings and layout parameters
+        ViewHolder vh = new ViewHolder(v);
+        return vh;
+    }
 
+    // Replace the contents of a view (invoked by the layout manager)
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        // - get element from your dataset at this position
+        // - replace the contents of the view with that element
         TopTracksParcelable track = mTracks.get(position);
-
         holder.albumName.setText(track.getAlbumName());
         holder.trackName.setText(track.getTrackName());
         Picasso.with(mContext).load(track.getAlbumImage()).into(holder.albumImage);
-
-        return view;
     }
 
-    static class ViewHolder {
-        @InjectView(R.id.album_image) ImageView albumImage;
-        @InjectView(R.id.album_name) TextView albumName;
-        @InjectView(R.id.track_name) TextView trackName;
-
-        public ViewHolder(View view) {
-            ButterKnife.inject(this, view);
-        }
+    // Return the size of your dataset (invoked by the layout manager)
+    @Override
+    public int getItemCount() {
+        return mTracks.size();
     }
 }

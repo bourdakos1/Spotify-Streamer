@@ -19,7 +19,7 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Bind;
 
 
 public class PlayerActivity extends Activity {
@@ -47,16 +47,16 @@ public class PlayerActivity extends Activity {
     public static final String TRACK_LIST_EXTRA = "track_list";
     public static final String POSITION_EXTRA = "position";
 
-    @InjectView(R.id.play) Button mPlay;
-    @InjectView(R.id.next) Button mNext;
-    @InjectView(R.id.previous) Button mPrevious;
-    @InjectView(R.id.duration) TextView mDuration;
-    @InjectView(R.id.position) TextView mPosition;
-    @InjectView(R.id.seekBar) SeekBar mSeekBar;
-    @InjectView(R.id.artist_name) TextView mArtist;
-    @InjectView(R.id.album_name) TextView mAlbum;
-    @InjectView(R.id.album_image) ImageView mImageView;
-    @InjectView(R.id.track_name) TextView mTrack;
+    @Bind(R.id.play) Button mPlay;
+    @Bind(R.id.next) Button mNext;
+    @Bind(R.id.previous) Button mPrevious;
+    @Bind(R.id.duration) TextView mDuration;
+    @Bind(R.id.position) TextView mPosition;
+    @Bind(R.id.seekBar) SeekBar mSeekBar;
+    @Bind(R.id.artist_name) TextView mArtist;
+    @Bind(R.id.album_name) TextView mAlbum;
+    @Bind(R.id.album_image) ImageView mImageView;
+    @Bind(R.id.track_name) TextView mTrack;
 
     private boolean mIsPlaying;
     private String mAlbumName;
@@ -72,7 +72,7 @@ public class PlayerActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         mList = getIntent().getParcelableArrayListExtra(TRACK_LIST_EXTRA);
         mTrackNumber = getIntent().getIntExtra(POSITION_EXTRA, 0);

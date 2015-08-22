@@ -12,8 +12,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import kaaes.spotify.webapi.android.models.Artist;
 
 /**
@@ -53,11 +53,11 @@ public class ArtistAdapter extends ArrayAdapter<ArtistParcelable>{
     }
 
     static class ViewHolder {
-        @InjectView(R.id.image) ImageView image;
-        @InjectView(R.id.text) TextView artist;
+        @Bind(R.id.image) ImageView image;
+        @Bind(R.id.text) TextView artist;
 
         public ViewHolder(View view) {
-            ButterKnife.inject(this, view);
+            ButterKnife.bind(this, view);
         }
     }
 }
