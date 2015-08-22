@@ -1,0 +1,35 @@
+<RelativeLayout
+    android:id="@+id/tablet"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <FrameLayout
+            android:id="@+id/fragment_search"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#000000"/>
+
+        <FrameLayout
+            android:id="@+id/fragment_top_tracks"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.61803398875"
+            android:background="#000000"/>
+
+    </LinearLayout>
+    <FrameLayout
+        android:id="@+id/fragment_player"
+        android:layout_width="500dp"
+        android:layout_height="500dp"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        android:background="#000000"/>
+</RelativeLayout>
