@@ -64,4 +64,11 @@ public class MainActivity extends AppCompatActivity {
                     .commit();
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        if(mTwoPane) {
+            findViewById(R.id.fragment_player).setVisibility(View.GONE);
+        }
+    }
 }

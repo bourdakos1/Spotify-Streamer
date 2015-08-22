@@ -58,7 +58,6 @@ public class TopTracksFragment extends Fragment {
 
         Picasso.with(getActivity()).load(artist.getArtistImage()).into(mImageView);
 
-        //getActionBar().setSubtitle(artist.getArtistName());
         mCollapsingToolbarLayout.setTitle(artist.getArtistName());
 
         if(savedInstanceState == null || !savedInstanceState.containsKey(TRACK_KEY)) {

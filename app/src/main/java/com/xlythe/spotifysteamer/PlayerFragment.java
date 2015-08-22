@@ -201,5 +201,4 @@ public class PlayerFragment extends Fragment {
         getActivity().unregisterReceiver(mReceiver);
     }
 
-
 }
