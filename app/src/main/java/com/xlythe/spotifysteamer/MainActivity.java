@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        MainActivity.super.onBackPressed();
         if(mTwoPane) {
             findViewById(R.id.fragment_player).setVisibility(View.GONE);
         }
