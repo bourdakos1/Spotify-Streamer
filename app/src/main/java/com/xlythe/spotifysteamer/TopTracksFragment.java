@@ -2,6 +2,7 @@ package com.xlythe.spotifysteamer;
 
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -40,6 +41,7 @@ public class TopTracksFragment extends Fragment {
     @Bind(R.id.recycler_view) RecyclerView mRecyclerView;
     @Bind(R.id.image) ImageView mImageView;
     @Bind(R.id.collapsing_toolbar) CollapsingToolbarLayout mCollapsingToolbarLayout;
+    @Bind(R.id.fabBtn) FloatingActionButton mFab;
 
     public TopTracksFragment() {
     }
@@ -106,6 +108,13 @@ public class TopTracksFragment extends Fragment {
             }
         });
         mRecyclerView.setAdapter(mAdapter);
+
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((MainActivity) getActivity()).addFragmentPlayer(mList, 0);
+            }
+        });
         return rootView;
     }
 
