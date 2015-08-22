@@ -32,7 +32,6 @@ public class TopTracksFragment extends Fragment {
     public final static String ARTIST_EXTRA = "artist";
     private final static String TRACK_KEY = "track";
 
-    //private TrackAdapter mAdapter;
     private Map<String, Object> mQuery = new HashMap<>();
     private ArrayList<TopTracksParcelable> mList = new ArrayList<>();
 
@@ -94,27 +93,20 @@ public class TopTracksFragment extends Fragment {
             mList = savedInstanceState.getParcelableArrayList(TRACK_KEY);
         }
 
-//        mAdapter = new TrackAdapter(rootView.getContext(), R.layout.track_item, mList);
-//        mListView.setAdapter(mAdapter);
         mRecyclerView.setHasFixedSize(true);
 
-        // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        // specify an adapter (see also next example)
-        mAdapter = new TrackAdapter(mList, getActivity());
-        mRecyclerView.setAdapter(mAdapter);
+        mAdapter = new TrackAdapter(mList, getActivity(), new TrackAdapter.OnItemClickListener() {
 
-//        mRecyclerView.setOnItemClickListener(new OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> av, View v, int position, long l) {
-////                Intent i = new Intent(getBaseContext(), PlayerActivity.class);
-////                i.putExtra(PlayerActivity.TRACK_LIST_EXTRA, mList);
-////                i.putExtra(PlayerActivity.POSITION_EXTRA, position);
-////                startActivity(i);
-//            }
-//        });
+            @Override
+            public void onItemClick(View view, int position) {
+                Log.d("frag", position+"");
+                ((MainActivity) getActivity()).addFragmentPlayer(mList, position);
+            }
+        });
+        mRecyclerView.setAdapter(mAdapter);
         return rootView;
     }
 

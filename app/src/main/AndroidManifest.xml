@@ -23,10 +23,6 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
-        <activity
-            android:name=".PlayerActivity"
-            android:label="@string/title_activity_player" >
-        </activity>
 
         <service
             android:name=".PlayerService"

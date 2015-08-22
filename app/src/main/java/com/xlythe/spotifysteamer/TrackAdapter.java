@@ -1,7 +1,9 @@
 package com.xlythe.spotifysteamer;
 
 import android.content.Context;
+import android.support.v7.internal.widget.AdapterViewCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,15 +34,23 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.ViewHolder> 
         @Bind(R.id.album_image) ImageView albumImage;
         @Bind(R.id.album_name) TextView albumName;
         @Bind(R.id.track_name) TextView trackName;
+        View view;
 
         public ViewHolder(View v) {
             super(v);
             ButterKnife.bind(this, v);
+            view = v;
         }
     }
 
-    // Provide a suitable constructor (depends on the kind of dataset)
-    public TrackAdapter(ArrayList<TopTracksParcelable> tracks, Context context) {
+    private OnItemClickListener mOnItemClickListener;
+
+    public interface OnItemClickListener {
+        public void onItemClick(View view, int position);
+    }
+
+    public TrackAdapter(ArrayList<TopTracksParcelable> tracks, Context context, OnItemClickListener onItemClickListener) {
+        mOnItemClickListener = onItemClickListener;
         mTracks = tracks;
         mContext = context;
     }
@@ -57,13 +67,20 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.ViewHolder> 
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         TopTracksParcelable track = mTracks.get(position);
         holder.albumName.setText(track.getAlbumName());
         holder.trackName.setText(track.getTrackName());
         Picasso.with(mContext).load(track.getAlbumImage()).into(holder.albumImage);
+
+        holder.view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnItemClickListener.onItemClick(view, position);
+            }
+        });
     }
 
     // Return the size of your dataset (invoked by the layout manager)

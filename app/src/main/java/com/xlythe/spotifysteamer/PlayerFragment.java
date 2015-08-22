@@ -1,28 +1,29 @@
 package com.xlythe.spotifysteamer;
 
-import android.app.Activity;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.text.format.DateFormat;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-import butterknife.ButterKnife;
 import butterknife.Bind;
+import butterknife.ButterKnife;
 
-
-public class PlayerActivity extends Activity {
+public class PlayerFragment extends Fragment {
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -47,15 +48,19 @@ public class PlayerActivity extends Activity {
     public static final String TRACK_LIST_EXTRA = "track_list";
     public static final String POSITION_EXTRA = "position";
 
-    @Bind(R.id.play) Button mPlay;
+    @Bind(R.id.play)
+    Button mPlay;
     @Bind(R.id.next) Button mNext;
     @Bind(R.id.previous) Button mPrevious;
-    @Bind(R.id.duration) TextView mDuration;
+    @Bind(R.id.duration)
+    TextView mDuration;
     @Bind(R.id.position) TextView mPosition;
-    @Bind(R.id.seekBar) SeekBar mSeekBar;
+    @Bind(R.id.seekBar)
+    SeekBar mSeekBar;
     @Bind(R.id.artist_name) TextView mArtist;
     @Bind(R.id.album_name) TextView mAlbum;
-    @Bind(R.id.album_image) ImageView mImageView;
+    @Bind(R.id.album_image)
+    ImageView mImageView;
     @Bind(R.id.track_name) TextView mTrack;
 
     private boolean mIsPlaying;
@@ -68,24 +73,27 @@ public class PlayerActivity extends Activity {
     private String mTime = "m:ss";
     private ArrayList<TopTracksParcelable> mList = new ArrayList<>();
 
+    public PlayerFragment() {
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_player);
-        ButterKnife.bind(this);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View rootView = inflater.inflate(R.layout.fragment_player, container, false);
+        ButterKnife.bind(this, rootView);
 
-        mList = getIntent().getParcelableArrayListExtra(TRACK_LIST_EXTRA);
-        mTrackNumber = getIntent().getIntExtra(POSITION_EXTRA, 0);
+        mList = getArguments().getParcelableArrayList(TRACK_LIST_EXTRA);
+        mTrackNumber = getArguments().getInt(POSITION_EXTRA, 0);
 
-        Intent serviceIntent = new Intent(getBaseContext(), PlayerService.class);
+        Intent serviceIntent = new Intent(getActivity(), PlayerService.class);
         serviceIntent.putExtra(PlayerService.URL_EXTRA, mList.get(mTrackNumber).getPreviewUrl());
-        startService(serviceIntent);
+        getActivity().startService(serviceIntent);
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(PlayerService.ACTION_STATUS);
         filter.addAction(PlayerService.ACTION_POSITION);
         filter.addAction(PlayerService.ACTION_DURATION);
-        getApplicationContext().registerReceiver(mReceiver, filter);
+        getActivity().registerReceiver(mReceiver, filter);
 
         invalidateUI();
 
@@ -95,13 +103,15 @@ public class PlayerActivity extends Activity {
                 try {
                     while (!isInterrupted()) {
                         Thread.sleep(100);
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mPosition.setText(DateFormat.format(mTime, mMediaPosition));
-                                mSeekBar.setProgress(mMediaPosition);
-                            }
-                        });
+                        if (getActivity()!=null) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mPosition.setText(DateFormat.format(mTime, mMediaPosition));
+                                    mSeekBar.setProgress(mMediaPosition);
+                                }
+                            });
+                        }
                     }
                 } catch (InterruptedException e) {
 
@@ -113,13 +123,13 @@ public class PlayerActivity extends Activity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 Intent broadcastIntent = new Intent(PlayerService.ACTION_PLAY_TRACK);
-                sendBroadcast(broadcastIntent);
+                getActivity().sendBroadcast(broadcastIntent);
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
                 Intent broadcastIntent = new Intent(PlayerService.ACTION_PAUSE_TRACK);
-                sendBroadcast(broadcastIntent);
+                getActivity().sendBroadcast(broadcastIntent);
             }
 
             @Override
@@ -127,7 +137,7 @@ public class PlayerActivity extends Activity {
                 if (fromUser) {
                     Intent broadcastIntent = new Intent(PlayerService.ACTION_SEEK_TO);
                     broadcastIntent.putExtra(PlayerService.PROGRESS_EXTRA, progress);
-                    sendBroadcast(broadcastIntent);
+                    getActivity().sendBroadcast(broadcastIntent);
                 }
 
             }
@@ -137,11 +147,11 @@ public class PlayerActivity extends Activity {
             public void onClick(View v) {
                 if (mIsPlaying) {
                     Intent broadcastIntent = new Intent(PlayerService.ACTION_PAUSE_TRACK);
-                    sendBroadcast(broadcastIntent);
+                    getActivity().sendBroadcast(broadcastIntent);
                     mPlay.setBackgroundResource(android.R.drawable.ic_media_play);
                 } else {
                     Intent broadcastIntent = new Intent(PlayerService.ACTION_PLAY_TRACK);
-                    sendBroadcast(broadcastIntent);
+                    getActivity().sendBroadcast(broadcastIntent);
                     mPlay.setBackgroundResource(android.R.drawable.ic_media_pause);
                 }
             }
@@ -162,6 +172,8 @@ public class PlayerActivity extends Activity {
                 sendBroadcast();
             }
         });
+
+        return rootView;
     }
 
     private void invalidateUI(){
@@ -171,7 +183,7 @@ public class PlayerActivity extends Activity {
 
         mArtist.setText(mList.get(mTrackNumber).getArtistName());
         mAlbum.setText(mAlbumName);
-        Picasso.with(getBaseContext()).load(mAlbumArt).into(mImageView);
+        Picasso.with(getActivity()).load(mAlbumArt).into(mImageView);
         mTrack.setText(mTrackName);
     }
 
@@ -179,44 +191,19 @@ public class PlayerActivity extends Activity {
         invalidateUI();
         Intent broadcastIntent = new Intent(PlayerService.ACTION_NEW_TRACK);
         broadcastIntent.putExtra(PlayerService.URL_EXTRA, mList.get(mTrackNumber).getPreviewUrl());
-        sendBroadcast(broadcastIntent);
+        getActivity().sendBroadcast(broadcastIntent);
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_player, menu);
-        return true;
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
-        getApplicationContext().unregisterReceiver(mReceiver);
+        getActivity().unregisterReceiver(mReceiver);
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 }
