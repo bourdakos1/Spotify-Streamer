@@ -2,24 +2,27 @@
     android:id="@+id/tablet"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <ImageView
-        android:id="@+id/not_found"
-        android:visibility="gone"
-        android:layout_gravity="center_horizontal"
-        android:layout_margin="80dp"
-        android:background="@drawable/not_found"
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/fragment_search"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@android:color/holo_red_dark"
+        tools:context="com.xlythe.spotifysteamer.MainActivity"/>
 
-    <ListView
-        android:visibility="gone"
-        android:id="@+id/list_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/fragment_top_tracks"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1.61803398875"
+        android:background="@android:color/holo_blue_dark"
+        tools:context="com.xlythe.spotifysteamer.MainActivity"/>
 
 </LinearLayout>

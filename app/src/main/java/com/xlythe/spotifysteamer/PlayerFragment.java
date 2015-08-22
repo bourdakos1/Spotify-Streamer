@@ -48,19 +48,15 @@ public class PlayerFragment extends Fragment {
     public static final String TRACK_LIST_EXTRA = "track_list";
     public static final String POSITION_EXTRA = "position";
 
-    @Bind(R.id.play)
-    Button mPlay;
+    @Bind(R.id.play) Button mPlay;
     @Bind(R.id.next) Button mNext;
     @Bind(R.id.previous) Button mPrevious;
-    @Bind(R.id.duration)
-    TextView mDuration;
+    @Bind(R.id.duration) TextView mDuration;
     @Bind(R.id.position) TextView mPosition;
-    @Bind(R.id.seekBar)
-    SeekBar mSeekBar;
+    @Bind(R.id.seekBar) SeekBar mSeekBar;
     @Bind(R.id.artist_name) TextView mArtist;
     @Bind(R.id.album_name) TextView mAlbum;
-    @Bind(R.id.album_image)
-    ImageView mImageView;
+    @Bind(R.id.album_image) ImageView mImageView;
     @Bind(R.id.track_name) TextView mTrack;
 
     private boolean mIsPlaying;

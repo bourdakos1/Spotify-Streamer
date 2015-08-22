@@ -2,6 +2,7 @@ package com.xlythe.spotifysteamer;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -14,14 +15,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_search, new SearchFragment())
+                .commit();
+
         if (findViewById(R.id.tablet) != null) {
             mTwoPane = true;
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_top_tracks, new TopTracksFragment())
+                    .commit();
         } else {
             mTwoPane = false;
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_search, new SearchFragment())
-                    .commit();
         }
+        Log.d("twopane", mTwoPane + "");
     }
 
     public void replaceFragment(ArtistParcelable artist){
