@@ -47,6 +47,8 @@ public class PlayerFragment extends Fragment {
 
     public static final String TRACK_LIST_EXTRA = "track_list";
     public static final String POSITION_EXTRA = "position";
+    private final static String TRACK_KEY = "track";
+    private final static String POSITION_KEY = "position";
 
     @Bind(R.id.play) Button mPlay;
     @Bind(R.id.next) Button mNext;
@@ -78,8 +80,14 @@ public class PlayerFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_player, container, false);
         ButterKnife.bind(this, rootView);
 
-        mList = getArguments().getParcelableArrayList(TRACK_LIST_EXTRA);
-        mTrackNumber = getArguments().getInt(POSITION_EXTRA, 0);
+        if(savedInstanceState != null && savedInstanceState.containsKey(TRACK_KEY) && savedInstanceState.containsKey(POSITION_KEY)) {
+            mList = savedInstanceState.getParcelableArrayList(TRACK_KEY);
+            mTrackNumber = savedInstanceState.getInt(POSITION_KEY);
+        }
+        else {
+            mList = getArguments().getParcelableArrayList(TRACK_LIST_EXTRA);
+            mTrackNumber = getArguments().getInt(POSITION_EXTRA, 0);
+        }
 
         Intent serviceIntent = new Intent(getActivity(), PlayerService.class);
         serviceIntent.putExtra(PlayerService.URL_EXTRA, mList.get(mTrackNumber).getPreviewUrl());
@@ -192,6 +200,8 @@ public class PlayerFragment extends Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList(TRACK_KEY, mList);
+        outState.putInt(POSITION_KEY, mTrackNumber);
         super.onSaveInstanceState(outState);
     }
 
