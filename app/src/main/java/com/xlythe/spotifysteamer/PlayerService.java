@@ -79,14 +79,6 @@ public class PlayerService extends Service {
             String url = intent.getStringExtra(URL_EXTRA);
             playMedia(url);
 
-            Intent broadcastIntent = new Intent(PlayerService.ACTION_STATUS);
-            broadcastIntent.putExtra(IS_PLAYING_EXTRA, true);
-            sendStickyBroadcast(broadcastIntent);
-
-            broadcastIntent = new Intent(PlayerService.ACTION_DURATION);
-            broadcastIntent.putExtra(DURATION_EXTRA, mMediaPlayer.getDuration());
-            sendStickyBroadcast(broadcastIntent);
-
             mThread = new Thread() {
                 @Override
                 public void run() {
@@ -111,19 +103,30 @@ public class PlayerService extends Service {
     }
 
     private void playMedia(String url){
-        if (mMediaPlayer.isPlaying()) {
-            mMediaPlayer.stop();
-            mMediaPlayer.release();
-            mMediaPlayer = new MediaPlayer();
-        }
+        mMediaPlayer.stop();
+        mMediaPlayer.release();
+        mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
             mMediaPlayer.setDataSource(url);
-            mMediaPlayer.prepare();
+            mMediaPlayer.prepareAsync();
         } catch (IOException ioe) {
             Log.d("PlayerActivity", "Media not found");
         }
-        mMediaPlayer.start();
+        mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mediaPlayer) {
+                mMediaPlayer.start();
+
+                Intent broadcastIntent = new Intent(PlayerService.ACTION_STATUS);
+                broadcastIntent.putExtra(IS_PLAYING_EXTRA, true);
+                sendStickyBroadcast(broadcastIntent);
+
+                broadcastIntent = new Intent(PlayerService.ACTION_DURATION);
+                broadcastIntent.putExtra(DURATION_EXTRA, mMediaPlayer.getDuration());
+                sendStickyBroadcast(broadcastIntent);
+            }
+        });
     }
 
     @Override

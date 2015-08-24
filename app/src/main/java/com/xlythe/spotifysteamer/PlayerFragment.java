@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -46,10 +45,11 @@ public class PlayerFragment extends Fragment {
         }
     };
 
-    public static final String TRACK_LIST_EXTRA = "track_list";
-    public static final String POSITION_EXTRA = "position";
+    public final static String TRACK_LIST_EXTRA = "track_list";
+    public final static String POSITION_EXTRA = "position";
     private final static String TRACK_KEY = "track";
     private final static String POSITION_KEY = "position";
+    private final static String mTime = "m:ss";
 
     @Bind(R.id.play) Button mPlay;
     @Bind(R.id.next) Button mNext;
@@ -69,8 +69,8 @@ public class PlayerFragment extends Fragment {
     private int mTrackNumber;
     private int mMediaPosition;
     private int mMediaDuration;
-    private String mTime = "m:ss";
     private ArrayList<TopTracksParcelable> mList = new ArrayList<>();
+    private Thread mThread;
 
     public PlayerFragment() {
     }
@@ -102,7 +102,7 @@ public class PlayerFragment extends Fragment {
 
         invalidateUI();
 
-        new Thread() {
+        mThread = new Thread() {
             @Override
             public void run() {
                 try {
@@ -122,7 +122,8 @@ public class PlayerFragment extends Fragment {
 
                 }
             }
-        }.start();
+        };
+        mThread.start();
 
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -186,6 +187,12 @@ public class PlayerFragment extends Fragment {
         mAlbumName = mList.get(mTrackNumber).getAlbumName();
         mAlbumArt = mList.get(mTrackNumber).getAlbumImage();
 
+        if (mIsPlaying) {
+            mPlay.setBackgroundResource(android.R.drawable.ic_media_play);
+        } else {
+            mPlay.setBackgroundResource(android.R.drawable.ic_media_pause);
+        }
+
         mArtist.setText(mList.get(mTrackNumber).getArtistName());
         mAlbum.setText(mAlbumName);
         Picasso.with(getActivity()).load(mAlbumArt).into(mImageView);
@@ -209,6 +216,8 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (mThread!=null)
+            mThread.interrupt();
         getActivity().unregisterReceiver(mReceiver);
     }
 

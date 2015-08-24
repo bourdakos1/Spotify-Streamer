@@ -1,5 +1,8 @@
 package com.xlythe.spotifysteamer;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -35,7 +38,7 @@ public class TopTracksFragment extends Fragment {
 
     private Map<String, Object> mQuery = new HashMap<>();
     private ArrayList<TopTracksParcelable> mList = new ArrayList<>();
-
+    private Toast mToast;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     @Bind(R.id.recycler_view) RecyclerView mRecyclerView;
@@ -62,33 +65,12 @@ public class TopTracksFragment extends Fragment {
 
         mCollapsingToolbarLayout.setTitle(artist.getArtistName());
 
-        if(savedInstanceState == null || !savedInstanceState.containsKey(TRACK_KEY)) {
-            spotify.getArtistTopTrack(artist.getArtistId(), mQuery,new Callback<Tracks>() {
-                @Override
-                public void success(Tracks tracks, Response response) {
-                    mList.clear();
-                    for (Track track : tracks.tracks) {
-                        mList.add(new TopTracksParcelable(track));
-                    }
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mAdapter.notifyDataSetChanged();
-                        }
-                    });
-                }
+        mToast = Toast.makeText(getActivity(), "No results found.", Toast.LENGTH_SHORT);
 
-                @Override
-                public void failure(RetrofitError error) {
-                    Log.d("TopTracksActivity", error.toString());
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getActivity(), "No tracks found.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            });
+        if(savedInstanceState == null || !savedInstanceState.containsKey(TRACK_KEY)) {
+            if (isNetworkAvailable()) {
+                prepareTopTracks(spotify, artist);
+            }
         }
         else{
             mList = savedInstanceState.getParcelableArrayList(TRACK_KEY);
@@ -122,5 +104,46 @@ public class TopTracksFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelableArrayList(TRACK_KEY, mList);
         super.onSaveInstanceState(outState);
+    }
+
+    //Based on a stackoverflow snippet
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    public void prepareTopTracks(SpotifyService spotify, ArtistParcelable artist){
+        spotify.getArtistTopTrack(artist.getArtistId(), mQuery,new Callback<Tracks>() {
+            @Override
+            public void success(Tracks tracks, Response response) {
+                mList.clear();
+                for (Track track : tracks.tracks) {
+                    mList.add(new TopTracksParcelable(track));
+                }
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAdapter.notifyDataSetChanged();
+                        if (mList.size() == 0) {
+                            mToast.show();
+                        } else {
+                            mToast.cancel();
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d("TopTracksActivity", error.toString());
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getActivity(), "No tracks found.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
     }
 }

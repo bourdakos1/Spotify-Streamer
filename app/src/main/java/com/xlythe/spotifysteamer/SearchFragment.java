@@ -1,5 +1,8 @@
 package com.xlythe.spotifysteamer;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -37,7 +40,6 @@ public class SearchFragment extends Fragment {
     @Bind(R.id.not_found) ImageView mNotFound;
     @Bind(R.id.search_view) EditText mSearchView;
     @Bind(R.id.clear) ImageButton mClear;
-    @Bind(R.id.back) ImageButton mBack;
 
     public SearchFragment() {
     }
@@ -73,44 +75,12 @@ public class SearchFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                spotify.searchArtists(charSequence.toString(), new Callback<ArtistsPager>() {
-                    @Override
-                    public void success(ArtistsPager artistsPager, Response response) {
-                        mList.clear();
-                        for (Artist artist : artistsPager.artists.items) {
-                            mList.add(new ArtistParcelable(artist));
-                        }
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mAdapter.notifyDataSetChanged();
-                                if (mList.size() == 0) {
-                                    mToast.show();
-                                    mNotFound.setVisibility(View.VISIBLE);
-                                    mListView.setVisibility(View.GONE);
-                                } else {
-                                    mToast.cancel();
-                                    mNotFound.setVisibility(View.GONE);
-                                    mListView.setVisibility(View.VISIBLE);
-                                }
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void failure(RetrofitError error) {
-                        Log.d("Spotify", error.toString());
-                        mList.clear();
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                mAdapter.notifyDataSetChanged();
-                                mNotFound.setVisibility(View.GONE);
-                                mListView.setVisibility(View.VISIBLE);
-                            }
-                        });
-                    }
-                });
+                if (isNetworkAvailable()) {
+                    populateArtists(spotify, charSequence);
+                }
+                else {
+                    Toast.makeText(getActivity(), "No network connection.", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
@@ -122,12 +92,6 @@ public class SearchFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 mSearchView.setText("");
-            }
-        });
-        mBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //TODO: go back
             }
         });
         return rootView;
@@ -143,5 +107,53 @@ public class SearchFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelableArrayList(ARTIST_KEY, mList);
         super.onSaveInstanceState(outState);
+    }
+
+    //Based on a stackoverflow snippet
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    private void populateArtists(SpotifyService spotify, CharSequence charSequence){
+        spotify.searchArtists(charSequence.toString(), new Callback<ArtistsPager>() {
+            @Override
+            public void success(ArtistsPager artistsPager, Response response) {
+                mList.clear();
+                for (Artist artist : artistsPager.artists.items) {
+                    mList.add(new ArtistParcelable(artist));
+                }
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAdapter.notifyDataSetChanged();
+                        if (mList.size() == 0) {
+                            mToast.show();
+                            mNotFound.setVisibility(View.VISIBLE);
+                            mListView.setVisibility(View.GONE);
+                        } else {
+                            mToast.cancel();
+                            mNotFound.setVisibility(View.GONE);
+                            mListView.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d("Spotify", error.toString());
+                mList.clear();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAdapter.notifyDataSetChanged();
+                        mNotFound.setVisibility(View.GONE);
+                        mListView.setVisibility(View.VISIBLE);
+                    }
+                });
+            }
+        });
     }
 }
