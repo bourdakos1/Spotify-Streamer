@@ -94,7 +94,9 @@ public class TopTracksFragment extends Fragment {
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((MainActivity) getActivity()).addFragmentPlayer(mList, 0);
+                if (mList.size() > 0) {
+                    ((MainActivity) getActivity()).addFragmentPlayer(mList, 0);
+                }
             }
         });
         return rootView;
