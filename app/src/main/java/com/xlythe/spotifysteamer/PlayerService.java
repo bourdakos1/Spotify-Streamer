@@ -85,9 +85,11 @@ public class PlayerService extends Service {
                     try {
                         while (!isInterrupted()) {
                             Thread.sleep(100);
-                            Intent broadcastIntent = new Intent(PlayerService.ACTION_POSITION);
-                            broadcastIntent.putExtra(POSITION_EXTRA, mMediaPlayer.getCurrentPosition());
-                            sendStickyBroadcast(broadcastIntent);
+                            if (mMediaPlayer!=null) {
+                                Intent broadcastIntent = new Intent(PlayerService.ACTION_POSITION);
+                                broadcastIntent.putExtra(POSITION_EXTRA, mMediaPlayer.getCurrentPosition());
+                                sendStickyBroadcast(broadcastIntent);
+                            }
                         }
                     } catch (InterruptedException e) {
 
@@ -103,8 +105,9 @@ public class PlayerService extends Service {
     }
 
     private void playMedia(String url){
-        mMediaPlayer.stop();
-        mMediaPlayer.release();
+        if (mMediaPlayer != null) {
+            mMediaPlayer.reset();
+        }
         mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {

@@ -1,12 +1,10 @@
 package com.xlythe.spotifysteamer;
 
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -24,7 +22,7 @@ import java.util.ArrayList;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class PlayerFragment extends DialogFragment {
+public class PlayerFragment extends Fragment {
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -89,11 +87,10 @@ public class PlayerFragment extends DialogFragment {
         else {
             mList = getArguments().getParcelableArrayList(TRACK_LIST_EXTRA);
             mTrackNumber = getArguments().getInt(POSITION_EXTRA, 0);
+            Intent serviceIntent = new Intent(getActivity(), PlayerService.class);
+            serviceIntent.putExtra(PlayerService.URL_EXTRA, mList.get(mTrackNumber).getPreviewUrl());
+            getActivity().startService(serviceIntent);
         }
-
-        Intent serviceIntent = new Intent(getActivity(), PlayerService.class);
-        serviceIntent.putExtra(PlayerService.URL_EXTRA, mList.get(mTrackNumber).getPreviewUrl());
-        getActivity().startService(serviceIntent);
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(PlayerService.ACTION_STATUS);

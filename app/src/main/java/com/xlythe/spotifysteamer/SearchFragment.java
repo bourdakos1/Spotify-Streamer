@@ -1,5 +1,6 @@
 package com.xlythe.spotifysteamer;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -35,6 +36,7 @@ public class SearchFragment extends Fragment {
     private Toast mToast;
     private ArrayList<ArtistParcelable> mList = new ArrayList<>();
     private final static String ARTIST_KEY = "artist";
+    private Activity mActivity;
 
     @Bind(R.id.list_view) ListView mListView;
     @Bind(R.id.not_found) ImageView mNotFound;
@@ -58,11 +60,11 @@ public class SearchFragment extends Fragment {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> av, View v, int position, long l) {
-                ((MainActivity) getActivity()).replaceFragment(mList.get(position));
+                ((MainActivity) mActivity).replaceFragment(mList.get(position));
             }
         });
 
-        mToast = Toast.makeText(getActivity(), "No results found.", Toast.LENGTH_SHORT);
+        mToast = Toast.makeText(mActivity, "No results found.", Toast.LENGTH_SHORT);
 
         SpotifyApi api = new SpotifyApi();
         final SpotifyService spotify = api.getService();
@@ -77,9 +79,8 @@ public class SearchFragment extends Fragment {
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if (isNetworkAvailable()) {
                     populateArtists(spotify, charSequence);
-                }
-                else {
-                    Toast.makeText(getActivity(), "No network connection.", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(mActivity, "No network connection.", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -98,6 +99,12 @@ public class SearchFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mActivity = activity;
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         mSearchView.setFocusable(false);
@@ -111,7 +118,7 @@ public class SearchFragment extends Fragment {
 
     //Based on a stackoverflow snippet
     private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivityManager = (ConnectivityManager) mActivity.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
@@ -124,7 +131,7 @@ public class SearchFragment extends Fragment {
                 for (Artist artist : artistsPager.artists.items) {
                     mList.add(new ArtistParcelable(artist));
                 }
-                getActivity().runOnUiThread(new Runnable() {
+                mActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         mAdapter.notifyDataSetChanged();
@@ -145,7 +152,7 @@ public class SearchFragment extends Fragment {
             public void failure(RetrofitError error) {
                 Log.d("Spotify", error.toString());
                 mList.clear();
-                getActivity().runOnUiThread(new Runnable() {
+                mActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         mAdapter.notifyDataSetChanged();
