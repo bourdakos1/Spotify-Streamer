@@ -1,9 +1,7 @@
 package com.xlythe.spotifysteamer;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -45,41 +43,11 @@ public class TopTracksFragment extends Fragment {
     private Toast mToast;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    private boolean mIsPlaying;
-    private int mMediaPosition;
-    private int mMediaDuration;
 
     @Bind(R.id.recycler_view) RecyclerView mRecyclerView;
     @Bind(R.id.image) ImageView mImageView;
     @Bind(R.id.collapsing_toolbar) CollapsingToolbarLayout mCollapsingToolbarLayout;
     @Bind(R.id.fabBtn) FloatingActionButton mFab;
-    @Bind(R.id.now_album_image) ImageView mImage;
-    @Bind(R.id.now_track_name) TextView mTrack;
-    @Bind(R.id.now_artist_name) TextView mArtist;
-
-    /**
-     * Broadcast receiver that gets play/pause info, track details, and playback position.
-     */
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            switch(action) {
-                case PlayerService.ACTION_STATUS:
-                    mIsPlaying = intent.getBooleanExtra(PlayerService.IS_PLAYING_EXTRA, true);
-                    break;
-                case PlayerService.ACTION_PLAYBACK_POSITION:
-                    mMediaPosition = intent.getIntExtra(PlayerService.PLAYBACK_POSITION_EXTRA, 0);
-                    break;
-                case PlayerService.ACTION_DETAILS:
-                    Picasso.with(getActivity()).load(intent.getStringExtra(PlayerService.IMAGE_EXTRA)).into(mImage);
-                    mMediaDuration = intent.getIntExtra(PlayerService.DURATION_EXTRA, 0);
-                    mTrack.setText(intent.getStringExtra(PlayerService.TRACK_EXTRA));
-                    mArtist.setText(intent.getStringExtra(PlayerService.ARTIST_EXTRA));
-                    break;
-            }
-        }
-    };
 
     /**
      * Empty constructor.
@@ -113,13 +81,6 @@ public class TopTracksFragment extends Fragment {
         else{
             mList = savedInstanceState.getParcelableArrayList(TRACK_KEY);
         }
-
-        // Register broadcast receiver.
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(PlayerService.ACTION_STATUS);
-        filter.addAction(PlayerService.ACTION_PLAYBACK_POSITION);
-        filter.addAction(PlayerService.ACTION_DETAILS);
-        getActivity().registerReceiver(mReceiver, filter);
 
         // Fill recycler view.
         mRecyclerView.setHasFixedSize(true);
