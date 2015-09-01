@@ -32,10 +32,11 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 public class SearchFragment extends Fragment {
+    private final static String ARTIST_KEY = "artist";
+
     private ArtistAdapter mAdapter;
     private Toast mToast;
     private ArrayList<ArtistParcelable> mList = new ArrayList<>();
-    private final static String ARTIST_KEY = "artist";
     private Activity mActivity;
 
     @Bind(R.id.list_view) ListView mListView;
@@ -64,11 +65,6 @@ public class SearchFragment extends Fragment {
             }
         });
 
-        mToast = Toast.makeText(mActivity, "No results found.", Toast.LENGTH_SHORT);
-
-        SpotifyApi api = new SpotifyApi();
-        final SpotifyService spotify = api.getService();
-
         mSearchView.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -78,7 +74,7 @@ public class SearchFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if (isNetworkAvailable()) {
-                    populateArtists(spotify, charSequence);
+                    populateArtists(charSequence);
                 } else {
                     Toast.makeText(mActivity, "No network connection.", Toast.LENGTH_SHORT).show();
                 }
@@ -123,7 +119,10 @@ public class SearchFragment extends Fragment {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    private void populateArtists(SpotifyService spotify, CharSequence charSequence){
+    private void populateArtists(CharSequence charSequence){
+        SpotifyApi api = new SpotifyApi();
+        final SpotifyService spotify = api.getService();
+        mToast = Toast.makeText(mActivity, "No results found.", Toast.LENGTH_SHORT);
         spotify.searchArtists(charSequence.toString(), new Callback<ArtistsPager>() {
             @Override
             public void success(ArtistsPager artistsPager, Response response) {

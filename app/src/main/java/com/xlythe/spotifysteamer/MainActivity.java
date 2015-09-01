@@ -4,13 +4,12 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import java.util.ArrayList;
-
-
 public class MainActivity extends AppCompatActivity {
+    public final static String ARTIST_EXTRA = "artist";
+    private final static String PLAYER_KEY = "player_visible";
+
     private boolean mTwoPane;
     private boolean mPlayerVisible;
-    private final static String PLAYER_KEY = "player_visible";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void replaceFragment(ArtistParcelable artist){
         Bundle args = new Bundle();
-        args.putParcelable(TopTracksFragment.ARTIST_EXTRA, artist);
+        args.putParcelable(ARTIST_EXTRA, artist);
 
         TopTracksFragment fragment = new TopTracksFragment();
         fragment.setArguments(args);
@@ -53,13 +52,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void addFragmentPlayer(ArrayList<TopTracksParcelable> tracks, int position){
-        Bundle args = new Bundle();
-        args.putParcelableArrayList(PlayerFragment.TRACK_LIST_EXTRA, tracks);
-        args.putInt(PlayerFragment.POSITION_EXTRA, position);
-
+    public void addFragmentPlayer(){
         PlayerFragment fragment = new PlayerFragment();
-        fragment.setArguments(args);
         if(!mTwoPane) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_search, fragment).addToBackStack(null)

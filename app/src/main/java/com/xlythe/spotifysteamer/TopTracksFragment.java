@@ -37,34 +37,10 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 public class TopTracksFragment extends Fragment {
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            switch(action) {
-                case PlayerService.ACTION_STATUS:
-                    mIsPlaying = intent.getBooleanExtra(PlayerService.IS_PLAYING_EXTRA, true);
-                    break;
-                case PlayerService.ACTION_POSITION:
-                    mMediaPosition = intent.getIntExtra(PlayerService.POSITION_EXTRA, 0);
-                    break;
-                case PlayerService.ACTION_DURATION:
-                    mMediaDuration = intent.getIntExtra(PlayerService.DURATION_EXTRA, 0);
-                    break;
-                case PlayerFragment.ACTION_DETAILS:
-                    Picasso.with(getActivity()).load(intent.getStringExtra(PlayerFragment.IMAGE_EXTRA)).into(mImage);
-                    mTrack.setText(intent.getStringExtra(PlayerFragment.TRACK_EXTRA));
-                    mArtist.setText(intent.getStringExtra(PlayerFragment.ARTIST_EXTRA));
-                    break;
-            }
-        }
-    };
-
-    public final static String ARTIST_EXTRA = "artist";
+    public final static String CURRENT_TRACK_EXTRA = "current_track";
+    public final static String TRACK_LIST_EXTRA = "track_list";
     private final static String TRACK_KEY = "track";
-    private final static String TIME = "m:ss";
 
-    private Map<String, Object> mQuery = new HashMap<>();
     private ArrayList<TopTracksParcelable> mList = new ArrayList<>();
     private Toast mToast;
     private RecyclerView.Adapter mAdapter;
@@ -81,69 +57,111 @@ public class TopTracksFragment extends Fragment {
     @Bind(R.id.now_track_name) TextView mTrack;
     @Bind(R.id.now_artist_name) TextView mArtist;
 
+    /**
+     * Broadcast receiver that gets play/pause info, track details, and playback position.
+     */
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            switch(action) {
+                case PlayerService.ACTION_STATUS:
+                    mIsPlaying = intent.getBooleanExtra(PlayerService.IS_PLAYING_EXTRA, true);
+                    break;
+                case PlayerService.ACTION_PLAYBACK_POSITION:
+                    mMediaPosition = intent.getIntExtra(PlayerService.PLAYBACK_POSITION_EXTRA, 0);
+                    break;
+                case PlayerService.ACTION_DETAILS:
+                    Picasso.with(getActivity()).load(intent.getStringExtra(PlayerService.IMAGE_EXTRA)).into(mImage);
+                    mMediaDuration = intent.getIntExtra(PlayerService.DURATION_EXTRA, 0);
+                    mTrack.setText(intent.getStringExtra(PlayerService.TRACK_EXTRA));
+                    mArtist.setText(intent.getStringExtra(PlayerService.ARTIST_EXTRA));
+                    break;
+            }
+        }
+    };
+
+    /**
+     * Empty constructor.
+     */
     public TopTracksFragment() {
     }
 
+    /**
+     * On create view.
+     * @param inflater layout inflater.
+     * @param container view group container.
+     * @param savedInstanceState saved state.
+     * @return View
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_top_tracks, container, false);
         ButterKnife.bind(this, rootView);
 
-        SpotifyApi api = new SpotifyApi();
-        final SpotifyService spotify = api.getService();
-
-        ArtistParcelable artist = getArguments().getParcelable(ARTIST_EXTRA);
-
-        mQuery.put(spotify.COUNTRY, "US");
-
+        // Set ui.
+        ArtistParcelable artist = getArguments().getParcelable(MainActivity.ARTIST_EXTRA);
         Picasso.with(getActivity()).load(artist.getArtistImage()).into(mImageView);
-
         mCollapsingToolbarLayout.setTitle(artist.getArtistName());
 
-        mToast = Toast.makeText(getActivity(), "No results found.", Toast.LENGTH_SHORT);
-
+        // Check for saved state and restore data.
         if(savedInstanceState == null || !savedInstanceState.containsKey(TRACK_KEY)) {
             if (isNetworkAvailable()) {
-                prepareTopTracks(spotify, artist);
+                prepareTopTracks(artist);
             }
         }
         else{
             mList = savedInstanceState.getParcelableArrayList(TRACK_KEY);
         }
 
+        // Register broadcast receiver.
         IntentFilter filter = new IntentFilter();
         filter.addAction(PlayerService.ACTION_STATUS);
-        filter.addAction(PlayerService.ACTION_POSITION);
-        filter.addAction(PlayerService.ACTION_DURATION);
-        filter.addAction(PlayerFragment.ACTION_DETAILS);
+        filter.addAction(PlayerService.ACTION_PLAYBACK_POSITION);
+        filter.addAction(PlayerService.ACTION_DETAILS);
         getActivity().registerReceiver(mReceiver, filter);
 
+        // Fill recycler view.
         mRecyclerView.setHasFixedSize(true);
-
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
-
         mAdapter = new TrackAdapter(mList, getActivity(), new TrackAdapter.OnItemClickListener() {
-
             @Override
             public void onItemClick(View view, int position) {
-                Log.d("frag", position+"");
-                ((MainActivity) getActivity()).addFragmentPlayer(mList, position);
+                ((MainActivity) getActivity()).addFragmentPlayer();
+                startService(position);
             }
         });
         mRecyclerView.setAdapter(mAdapter);
 
+        // Catch on click for FAB.
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (mList.size() > 0) {
-                    ((MainActivity) getActivity()).addFragmentPlayer(mList, 0);
+                    ((MainActivity) getActivity()).addFragmentPlayer();
+                    startService(0);
                 }
             }
         });
         return rootView;
     }
 
+    /**
+     * Start player service.
+     * @param position of the track to play.
+     */
+    public void startService(int position){
+        Intent serviceIntent = new Intent(getActivity(), PlayerService.class);
+        serviceIntent.putExtra(TRACK_LIST_EXTRA, mList);
+        serviceIntent.putExtra(CURRENT_TRACK_EXTRA, position);
+        getActivity().startService(serviceIntent);
+    }
+
+    /**
+     * Save state.
+     * @param outState
+     */
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putParcelableArrayList(TRACK_KEY, mList);
@@ -151,13 +169,26 @@ public class TopTracksFragment extends Fragment {
     }
 
     //Based on a stackoverflow snippet
+    /**
+     * Check for network availability.
+     * @return true if available
+     */
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    public void prepareTopTracks(SpotifyService spotify, ArtistParcelable artist){
+    /**
+     * Build list of tracks given artist id.
+     * @param artist id for querying database.
+     */
+    public void prepareTopTracks(ArtistParcelable artist){
+        SpotifyApi api = new SpotifyApi();
+        final SpotifyService spotify = api.getService();
+        Map<String, Object> mQuery = new HashMap<>();
+        mQuery.put(spotify.COUNTRY, "US");
+        mToast = Toast.makeText(getActivity(), "No results found.", Toast.LENGTH_SHORT);
         spotify.getArtistTopTrack(artist.getArtistId(), mQuery,new Callback<Tracks>() {
             @Override
             public void success(Tracks tracks, Response response) {
@@ -177,7 +208,6 @@ public class TopTracksFragment extends Fragment {
                     }
                 });
             }
-
             @Override
             public void failure(RetrofitError error) {
                 Log.d("TopTracksActivity", error.toString());
