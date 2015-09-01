@@ -1,51 +1,54 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.xlythe.spotifysteamer.NowPlayingFragment"
+    android:id="@+id/now_playing_bar"
     android:background="#fafafa"
     android:layout_width="match_parent"
     android:layout_height="56dp">
-    <ImageView
-        android:id="@+id/now_album_image"
-        android:background="@drawable/loading_image"
-        android:layout_width="56dp"
-        android:layout_height="56dp" />
-    <View
-        android:layout_toRightOf="@+id/now_album_image"
-        android:layout_width="match_parent"
-        android:background="@color/green"
-        android:layout_height="4dp"/>
-    <LinearLayout
-        android:layout_toRightOf="@+id/now_album_image"
-        android:layout_centerVertical="true"
-        android:layout_width="250dp"
-        android:background="#fafafa"
-        android:orientation="horizontal"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/now_track_name"
-            android:layout_marginLeft="16dp"
-            android:textSize="16sp"
-            android:textColor="#000000"
-            android:background="#fafafa"
+        <ImageView
+            android:id="@+id/now_album_image"
+            android:background="@drawable/loading_image"
+            android:layout_width="56dp"
+            android:layout_height="56dp" />
+        <View
+            android:layout_toRightOf="@+id/now_album_image"
+            android:layout_width="match_parent"
+            android:background="@color/green"
+            android:layout_height="4dp"/>
+        <LinearLayout
+            android:layout_toRightOf="@+id/now_album_image"
+            android:layout_toLeftOf="@+id/now_play"
+            android:layout_centerVertical="true"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="I Knew You Were Trouble"/>
-        <TextView
-            android:layout_marginLeft="8dp"
-            android:textSize="16sp"
-            android:lines="1"
-            android:ellipsize="end"
-            android:id="@+id/now_artist_name"
-            android:textColor="#A0000000"
             android:background="#fafafa"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Taylor Swift"/>
-    </LinearLayout>
-    <ImageView
-        android:layout_alignParentRight="true"
-        android:id="@+id/now_play"
-        android:background="@drawable/now_play"
-        android:layout_width="56dp"
-        android:layout_height="56dp" />
+            android:orientation="horizontal"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/now_track_name"
+                android:layout_marginLeft="16dp"
+                android:textSize="16sp"
+                android:textColor="#000000"
+                android:background="#fafafa"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="I Knew You Were Trouble"/>
+            <TextView
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="16dp"
+                android:textSize="16sp"
+                android:lines="1"
+                android:ellipsize="end"
+                android:id="@+id/now_artist_name"
+                android:textColor="#A0000000"
+                android:background="#fafafa"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Taylor Swift"/>
+        </LinearLayout>
+        <ImageButton
+            android:layout_alignParentRight="true"
+            android:id="@+id/now_play"
+            android:background="@drawable/now_play"
+            android:layout_width="56dp"
+            android:layout_height="56dp" />
 </RelativeLayout>

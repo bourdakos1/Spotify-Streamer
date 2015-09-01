@@ -9,7 +9,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -25,6 +27,8 @@ public class NowPlayingFragment extends Fragment {
     @Bind(R.id.now_album_image) ImageView mImage;
     @Bind(R.id.now_track_name) TextView mTrack;
     @Bind(R.id.now_artist_name) TextView mArtist;
+    @Bind(R.id.now_playing_bar) RelativeLayout mNowPlayingBar;
+    @Bind(R.id.now_play) ImageButton mPlay;
 
     /**
      * Broadcast receiver that gets play/pause info, track details, and playback position.
@@ -74,6 +78,28 @@ public class NowPlayingFragment extends Fragment {
         filter.addAction(PlayerService.ACTION_PLAYBACK_POSITION);
         filter.addAction(PlayerService.ACTION_DETAILS);
         getActivity().registerReceiver(mReceiver, filter);
+
+        // Toggle play/pause.
+        mPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent broadcastIntent = new Intent(PlayerService.ACTION_PLAY_TOGGLE);
+                getActivity().sendBroadcast(broadcastIntent);
+                if (!mIsPlaying) {
+                    mPlay.setBackgroundResource(R.drawable.now_play);
+                } else {
+                    mPlay.setBackgroundResource(R.drawable.now_pause);
+                }
+            }
+        });
+
+        // Open player fragment.
+        mNowPlayingBar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((MainActivity) getActivity()).addFragmentPlayer();
+            }
+        });
 
         return rootView;
     }
