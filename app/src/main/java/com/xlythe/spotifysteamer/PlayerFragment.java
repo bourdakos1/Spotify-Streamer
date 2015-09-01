@@ -128,7 +128,6 @@ public class PlayerFragment extends Fragment {
             public void onClick(View v) {
                 Intent broadcastIntent = new Intent(PlayerService.ACTION_PLAY_TOGGLE);
                 getActivity().sendBroadcast(broadcastIntent);
-                invalidateUI();
             }
         });
 
@@ -178,7 +177,6 @@ public class PlayerFragment extends Fragment {
         Intent broadcastIntent = new Intent(PlayerService.ACTION_NEW_TRACK);
         broadcastIntent.putExtra(PlayerService.FORWARD_EXTRA, forward);
         getActivity().sendBroadcast(broadcastIntent);
-        invalidateUI();
     }
 
     /**

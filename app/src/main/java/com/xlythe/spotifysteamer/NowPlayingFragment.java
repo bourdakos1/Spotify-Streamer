@@ -40,6 +40,11 @@ public class NowPlayingFragment extends Fragment {
             switch(action) {
                 case PlayerService.ACTION_STATUS:
                     mIsPlaying = intent.getBooleanExtra(PlayerService.IS_PLAYING_EXTRA, true);
+                    if (!mIsPlaying) {
+                        mPlay.setBackgroundResource(R.drawable.now_play);
+                    } else {
+                        mPlay.setBackgroundResource(R.drawable.now_pause);
+                    }
                     break;
                 case PlayerService.ACTION_PLAYBACK_POSITION:
                     mMediaPosition = intent.getIntExtra(PlayerService.PLAYBACK_POSITION_EXTRA, 0);
@@ -85,11 +90,6 @@ public class NowPlayingFragment extends Fragment {
             public void onClick(View view) {
                 Intent broadcastIntent = new Intent(PlayerService.ACTION_PLAY_TOGGLE);
                 getActivity().sendBroadcast(broadcastIntent);
-                if (!mIsPlaying) {
-                    mPlay.setBackgroundResource(R.drawable.now_play);
-                } else {
-                    mPlay.setBackgroundResource(R.drawable.now_pause);
-                }
             }
         });
 
