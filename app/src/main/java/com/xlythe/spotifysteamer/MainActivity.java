@@ -25,10 +25,10 @@ public class MainActivity extends AppCompatActivity {
             switch(action) {
                 case PlayerService.ACTION_STATUS:
                     if (intent.getBooleanExtra(PlayerService.HAS_STARTED_EXTRA, false)){
-                        findViewById(R.id.now_playing).setVisibility(View.VISIBLE);
+                        //findViewById(R.id.now_playing).setVisibility(View.VISIBLE);
                     }
                     else {
-                        findViewById(R.id.now_playing).setVisibility(View.GONE);
+                        //findViewById(R.id.now_playing).setVisibility(View.GONE);
                     }
                     removeStickyBroadcast(intent);
                     break;

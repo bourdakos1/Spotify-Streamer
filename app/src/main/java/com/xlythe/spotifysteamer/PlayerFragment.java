@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -23,9 +24,9 @@ import butterknife.ButterKnife;
 public class PlayerFragment extends Fragment {
     private final static String TIME = "m:ss";
 
-    @Bind(R.id.play) Button mPlay;
-    @Bind(R.id.next) Button mNext;
-    @Bind(R.id.previous) Button mPrevious;
+    @Bind(R.id.play) ImageButton mPlay;
+    @Bind(R.id.next) ImageButton mNext;
+    @Bind(R.id.previous) ImageButton mPrevious;
     @Bind(R.id.duration) TextView mDuration;
     @Bind(R.id.position) TextView mPosition;
     @Bind(R.id.seekBar) SeekBar mSeekBar;
@@ -160,9 +161,9 @@ public class PlayerFragment extends Fragment {
         mArtist.setText(mArtistName);
 
         if (!mIsPlaying) {
-            mPlay.setBackgroundResource(android.R.drawable.ic_media_play);
+            mPlay.setBackgroundResource(R.drawable.green_play);
         } else {
-            mPlay.setBackgroundResource(android.R.drawable.ic_media_pause);
+            mPlay.setBackgroundResource(R.drawable.green_pause);
         }
 
         mPosition.setText(DateFormat.format(TIME, mMediaPosition));
