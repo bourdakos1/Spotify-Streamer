@@ -1,5 +1,9 @@
 package com.xlythe.spotifysteamer;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -11,14 +15,40 @@ public class MainActivity extends AppCompatActivity {
     private boolean mTwoPane;
     private boolean mPlayerVisible;
 
+    /**
+     * Broadcast receiver that gets play/pause info, track details, and playback position.
+     */
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            switch(action) {
+                case PlayerService.ACTION_STATUS:
+                    if (intent.getBooleanExtra(PlayerService.HAS_STARTED_EXTRA, false)){
+                        findViewById(R.id.now_playing).setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        findViewById(R.id.now_playing).setVisibility(View.GONE);
+                    }
+                    removeStickyBroadcast(intent);
+                    break;
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(PlayerService.ACTION_STATUS);
+        getApplicationContext().registerReceiver(mReceiver, filter);
+
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.now_playing, new NowPlayingFragment())
                 .commit();
+        findViewById(R.id.now_playing).setVisibility(View.GONE);
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()

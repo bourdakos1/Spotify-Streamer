@@ -21,6 +21,7 @@ public class PlayerService extends Service {
     public final static String ACTION_SEEK_TO = "com.xlythe.spotifysteamer.action.SEEK_TO";
     public final static String ACTION_NEW_TRACK = "com.xlythe.spotifysteamer.action.NEW_TRACK";
     public final static String IS_PLAYING_EXTRA = "is_playing";
+    public final static String HAS_STARTED_EXTRA = "has_started";
     public final static String PLAYBACK_POSITION_EXTRA = "playback_position";
     public final static String DURATION_EXTRA = "duration";
     public final static String IMAGE_EXTRA = "image";
@@ -156,6 +157,7 @@ public class PlayerService extends Service {
 
                 Intent broadcastIntent = new Intent(ACTION_STATUS);
                 broadcastIntent.putExtra(IS_PLAYING_EXTRA, true);
+                broadcastIntent.putExtra(HAS_STARTED_EXTRA, true);
                 sendStickyBroadcast(broadcastIntent);
 
                 broadcastIntent = new Intent(ACTION_DETAILS);
