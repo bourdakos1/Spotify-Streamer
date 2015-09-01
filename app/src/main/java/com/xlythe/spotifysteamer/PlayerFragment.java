@@ -36,7 +36,7 @@ public class PlayerFragment extends Fragment {
                     break;
                 case PlayerService.ACTION_DURATION:
                     mMediaDuration = intent.getIntExtra(PlayerService.DURATION_EXTRA, 0);
-                    mDuration.setText(DateFormat.format(mTime, mMediaDuration));
+                    mDuration.setText(DateFormat.format(TIME, mMediaDuration));
                     mSeekBar.setMax(0);
                     mSeekBar.setMax(mMediaDuration);
                     break;
@@ -44,11 +44,15 @@ public class PlayerFragment extends Fragment {
         }
     };
 
+    public static final String ACTION_DETAILS = "com.xlythe.spotifysteamer.action.DETAILS";
     public final static String TRACK_LIST_EXTRA = "track_list";
     public final static String POSITION_EXTRA = "position";
     private final static String TRACK_KEY = "track";
     private final static String POSITION_KEY = "position";
-    private final static String mTime = "m:ss";
+    private final static String TIME = "m:ss";
+    public static final String IMAGE_EXTRA = "image";
+    public static final String TRACK_EXTRA = "track";
+    public static final String ARTIST_EXTRA = "artist";
 
     @Bind(R.id.play) Button mPlay;
     @Bind(R.id.next) Button mNext;
@@ -110,7 +114,7 @@ public class PlayerFragment extends Fragment {
                             getActivity().runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mPosition.setText(DateFormat.format(mTime, mMediaPosition));
+                                    mPosition.setText(DateFormat.format(TIME, mMediaPosition));
                                     mSeekBar.setProgress(mMediaPosition);
                                 }
                             });
@@ -184,6 +188,12 @@ public class PlayerFragment extends Fragment {
         mTrackName = mList.get(mTrackNumber).getTrackName();
         mAlbumName = mList.get(mTrackNumber).getAlbumName();
         mAlbumArt = mList.get(mTrackNumber).getAlbumImage();
+
+        Intent broadcastIntent = new Intent(ACTION_DETAILS);
+        broadcastIntent.putExtra(IMAGE_EXTRA, mAlbumArt);
+        broadcastIntent.putExtra(TRACK_EXTRA, mTrackName);
+        broadcastIntent.putExtra(ARTIST_EXTRA, mList.get(mTrackNumber).getArtistName());
+        getActivity().sendStickyBroadcast(broadcastIntent);
 
         if (mIsPlaying) {
             mPlay.setBackgroundResource(android.R.drawable.ic_media_play);

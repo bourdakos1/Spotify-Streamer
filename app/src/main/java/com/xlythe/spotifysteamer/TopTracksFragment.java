@@ -1,6 +1,9 @@
 package com.xlythe.spotifysteamer;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -14,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
@@ -33,18 +37,49 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 public class TopTracksFragment extends Fragment {
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            switch(action) {
+                case PlayerService.ACTION_STATUS:
+                    mIsPlaying = intent.getBooleanExtra(PlayerService.IS_PLAYING_EXTRA, true);
+                    break;
+                case PlayerService.ACTION_POSITION:
+                    mMediaPosition = intent.getIntExtra(PlayerService.POSITION_EXTRA, 0);
+                    break;
+                case PlayerService.ACTION_DURATION:
+                    mMediaDuration = intent.getIntExtra(PlayerService.DURATION_EXTRA, 0);
+                    break;
+                case PlayerFragment.ACTION_DETAILS:
+                    Picasso.with(getActivity()).load(intent.getStringExtra(PlayerFragment.IMAGE_EXTRA)).into(mImage);
+                    mTrack.setText(intent.getStringExtra(PlayerFragment.TRACK_EXTRA));
+                    mArtist.setText(intent.getStringExtra(PlayerFragment.ARTIST_EXTRA));
+                    break;
+            }
+        }
+    };
+
     public final static String ARTIST_EXTRA = "artist";
     private final static String TRACK_KEY = "track";
+    private final static String TIME = "m:ss";
 
     private Map<String, Object> mQuery = new HashMap<>();
     private ArrayList<TopTracksParcelable> mList = new ArrayList<>();
     private Toast mToast;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private boolean mIsPlaying;
+    private int mMediaPosition;
+    private int mMediaDuration;
+
     @Bind(R.id.recycler_view) RecyclerView mRecyclerView;
     @Bind(R.id.image) ImageView mImageView;
     @Bind(R.id.collapsing_toolbar) CollapsingToolbarLayout mCollapsingToolbarLayout;
     @Bind(R.id.fabBtn) FloatingActionButton mFab;
+    @Bind(R.id.now_album_image) ImageView mImage;
+    @Bind(R.id.now_track_name) TextView mTrack;
+    @Bind(R.id.now_artist_name) TextView mArtist;
 
     public TopTracksFragment() {
     }
@@ -75,6 +110,13 @@ public class TopTracksFragment extends Fragment {
         else{
             mList = savedInstanceState.getParcelableArrayList(TRACK_KEY);
         }
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(PlayerService.ACTION_STATUS);
+        filter.addAction(PlayerService.ACTION_POSITION);
+        filter.addAction(PlayerService.ACTION_DURATION);
+        filter.addAction(PlayerFragment.ACTION_DETAILS);
+        getActivity().registerReceiver(mReceiver, filter);
 
         mRecyclerView.setHasFixedSize(true);
 

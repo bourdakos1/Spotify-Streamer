@@ -55,7 +55,7 @@ public class PlayerService extends Service {
     public static final String URL_EXTRA = "url";
 
     private void sendBroadcast(){
-        Intent broadcastIntent = new Intent(PlayerService.ACTION_STATUS);
+        Intent broadcastIntent = new Intent(ACTION_STATUS);
         broadcastIntent.putExtra(IS_PLAYING_EXTRA, mMediaPlayer.isPlaying());
         sendStickyBroadcast(broadcastIntent);
     }
@@ -86,7 +86,7 @@ public class PlayerService extends Service {
                         while (!isInterrupted()) {
                             Thread.sleep(100);
                             if (mMediaPlayer!=null) {
-                                Intent broadcastIntent = new Intent(PlayerService.ACTION_POSITION);
+                                Intent broadcastIntent = new Intent(ACTION_POSITION);
                                 broadcastIntent.putExtra(POSITION_EXTRA, mMediaPlayer.getCurrentPosition());
                                 sendStickyBroadcast(broadcastIntent);
                             }
@@ -121,11 +121,11 @@ public class PlayerService extends Service {
             public void onPrepared(MediaPlayer mediaPlayer) {
                 mMediaPlayer.start();
 
-                Intent broadcastIntent = new Intent(PlayerService.ACTION_STATUS);
+                Intent broadcastIntent = new Intent(ACTION_STATUS);
                 broadcastIntent.putExtra(IS_PLAYING_EXTRA, true);
                 sendStickyBroadcast(broadcastIntent);
 
-                broadcastIntent = new Intent(PlayerService.ACTION_DURATION);
+                broadcastIntent = new Intent(ACTION_DURATION);
                 broadcastIntent.putExtra(DURATION_EXTRA, mMediaPlayer.getDuration());
                 sendStickyBroadcast(broadcastIntent);
             }
