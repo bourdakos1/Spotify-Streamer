@@ -9,12 +9,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.squareup.picasso.Picasso;
@@ -41,6 +39,7 @@ public class PlayerService extends Service {
     public final static String URL_EXTRA = "url";
     public final static String SEEK_TO_EXTRA = "seek_to";
     public final static String FORWARD_EXTRA = "forward";
+    private final static int NOTIFICATION_TAG = 1001;
 
     private MediaPlayer mMediaPlayer;
     private Thread mThread;
@@ -68,10 +67,13 @@ public class PlayerService extends Service {
                 case ACTION_NEW_TRACK:
                     if (intent.getBooleanExtra(FORWARD_EXTRA, true) && mCurrentTrack < mList.size() - 1) {
                         mCurrentTrack++;
+                        Log.d("","NEXT: " + intent.getBooleanExtra(FORWARD_EXTRA, true));
                     }
                     else if (mCurrentTrack > 0) {
                         mCurrentTrack--;
+                        Log.d("","PREV: " + intent.getBooleanExtra(FORWARD_EXTRA, true));
                     }
+                    Log.d("","FAIL: " + intent.getBooleanExtra(FORWARD_EXTRA, true));
                     playMedia();
                     break;
                 case ACTION_SEEK_TO:
@@ -186,9 +188,8 @@ public class PlayerService extends Service {
                 broadcastIntent.putExtra(ARTIST_EXTRA, mList.get(mCurrentTrack).getArtistName());
                 broadcastIntent.putExtra(URL_EXTRA, mList.get(mCurrentTrack).getPreviewUrl());
                 sendStickyBroadcast(broadcastIntent);
-
                 NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                manager.notify(1001, buildNotification());
+                manager.notify(NOTIFICATION_TAG, buildNotification());
             }
         });
     }
@@ -215,21 +216,41 @@ public class PlayerService extends Service {
             mMediaPlayer.release();
             mMediaPlayer = null;
         }
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        manager.cancel(NOTIFICATION_TAG);
         destroy();
     }
 
+    /**
+     * Notification builder
+     * @return Notification
+     */
     private Notification buildNotification() {
         Notification.Builder notificationBuilder = new Notification.Builder(this);
 
-        PendingIntent intent = PendingIntent.getService(this,222,
-                new Intent(this, PlayerService.class).setAction(ACTION_PLAY_TOGGLE),
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        // Last track intent.
+        Intent back = new Intent(ACTION_NEW_TRACK);
+        back.putExtra(FORWARD_EXTRA, false);
+        PendingIntent backwardIntent = PendingIntent.getBroadcast(this, 0, back, PendingIntent.FLAG_UPDATE_CURRENT);
+        notificationBuilder.addAction(R.drawable.backward, "", backwardIntent);
 
-        notificationBuilder.addAction(R.drawable.backward, "", intent);
+        // Play toggle intent.
+        int play;
+        if (mMediaPlayer.isPlaying()){
+            play = R.drawable.notification_pause;
+        }
+        else{
+            play = R.drawable.notification_play;
+        }
+        Intent playToggle = new Intent(ACTION_PLAY_TOGGLE);
+        PendingIntent playToggleIntent = PendingIntent.getBroadcast(this, 1, playToggle, PendingIntent.FLAG_UPDATE_CURRENT);
+        notificationBuilder.addAction(play, "", playToggleIntent);
 
-        notificationBuilder.addAction(R.drawable.now_play, "", intent);
-
-        notificationBuilder.addAction(R.drawable.forward, "", intent);
+        // Next track intent.
+        Intent next = new Intent(ACTION_NEW_TRACK);
+        next.putExtra(FORWARD_EXTRA, true);
+        PendingIntent forwardIntent = PendingIntent.getBroadcast(this, 2, next, PendingIntent.FLAG_UPDATE_CURRENT);
+        notificationBuilder.addAction(R.drawable.forward, "", forwardIntent);
 
         Picasso.with(this).load(mList.get(mCurrentTrack).getAlbumImage())
                 .into(new Target() {
@@ -249,11 +270,12 @@ public class PlayerService extends Service {
 
         notificationBuilder
                 .setSmallIcon(R.drawable.spotify)
+                .setColor(getResources().getColor(R.color.green))
                 .setContentTitle(mList.get(mCurrentTrack).getTrackName())
                 .setContentText(mList.get(mCurrentTrack).getArtistName())
                 .setLargeIcon(mAlbumBitmap);
 
-        notificationBuilder.setOngoing(false);
+        notificationBuilder.setOngoing(true);
 
         return notificationBuilder.build();
     }
