@@ -1,14 +1,24 @@
 package com.xlythe.spotifysteamer;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,6 +46,7 @@ public class PlayerService extends Service {
     private Thread mThread;
     private ArrayList<TopTracksParcelable> mList;
     private int mCurrentTrack;
+    private Bitmap mAlbumBitmap;
 
     /**
      * Broadcast receiver that toggles play/pause, changes tracks, and seeks.
@@ -100,7 +111,7 @@ public class PlayerService extends Service {
         broadcastIntent.putExtra(IS_PLAYING_EXTRA, false);
         broadcastIntent.putExtra(HAS_STARTED_EXTRA, false);
         sendStickyBroadcast(broadcastIntent);
-        Log.d("","end service");
+        Log.d("", "end service");
         getApplicationContext().unregisterReceiver(mReceiver);
     }
 
@@ -175,6 +186,9 @@ public class PlayerService extends Service {
                 broadcastIntent.putExtra(ARTIST_EXTRA, mList.get(mCurrentTrack).getArtistName());
                 broadcastIntent.putExtra(URL_EXTRA, mList.get(mCurrentTrack).getPreviewUrl());
                 sendStickyBroadcast(broadcastIntent);
+
+                NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                manager.notify(1001, buildNotification());
             }
         });
     }
@@ -202,6 +216,46 @@ public class PlayerService extends Service {
             mMediaPlayer = null;
         }
         destroy();
+    }
+
+    private Notification buildNotification() {
+        Notification.Builder notificationBuilder = new Notification.Builder(this);
+
+        PendingIntent intent = PendingIntent.getService(this,222,
+                new Intent(this, PlayerService.class).setAction(ACTION_PLAY_TOGGLE),
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        notificationBuilder.addAction(R.drawable.backward, "", intent);
+
+        notificationBuilder.addAction(R.drawable.now_play, "", intent);
+
+        notificationBuilder.addAction(R.drawable.forward, "", intent);
+
+        Picasso.with(this).load(mList.get(mCurrentTrack).getAlbumImage())
+                .into(new Target() {
+                    @Override
+                    public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
+                        mAlbumBitmap = bitmap;
+                    }
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+                    }
+
+                    @Override
+                    public void onBitmapFailed(Drawable errorDrawable) {
+                    }
+                });
+
+        notificationBuilder
+                .setSmallIcon(R.drawable.spotify)
+                .setContentTitle(mList.get(mCurrentTrack).getTrackName())
+                .setContentText(mList.get(mCurrentTrack).getArtistName())
+                .setLargeIcon(mAlbumBitmap);
+
+        notificationBuilder.setOngoing(false);
+
+        return notificationBuilder.build();
     }
 
     /**
