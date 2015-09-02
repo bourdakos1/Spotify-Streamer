@@ -14,6 +14,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean mTwoPane;
     private boolean mPlayerVisible;
+    private boolean mNowPlaying;
 
     /**
      * Broadcast receiver that gets play/pause info, track details, and playback position.
@@ -24,13 +25,7 @@ public class MainActivity extends AppCompatActivity {
             String action = intent.getAction();
             switch(action) {
                 case PlayerService.ACTION_STATUS:
-                    if (intent.getBooleanExtra(PlayerService.HAS_STARTED_EXTRA, false)){
-                        //findViewById(R.id.now_playing).setVisibility(View.VISIBLE);
-                    }
-                    else {
-                        //findViewById(R.id.now_playing).setVisibility(View.GONE);
-                    }
-                    removeStickyBroadcast(intent);
+                    mNowPlaying = intent.getBooleanExtra(PlayerService.HAS_STARTED_EXTRA, false);
                     break;
             }
         }
@@ -58,13 +53,19 @@ public class MainActivity extends AppCompatActivity {
         else {
             mPlayerVisible = savedInstanceState.getBoolean(PLAYER_KEY);
             if (mPlayerVisible && (findViewById(R.id.tablet) != null)) {
-                findViewById(R.id.fragment_player).setVisibility(View.VISIBLE);
+                findViewById(R.id.fragment_container).setVisibility(View.VISIBLE);
             }
         }
         if (findViewById(R.id.tablet) != null) {
             mTwoPane = true;
         } else {
             mTwoPane = false;
+        }
+        if (mNowPlaying && !mPlayerVisible){
+            findViewById(R.id.now_playing).setVisibility(View.VISIBLE);
+        }
+        else {
+            findViewById(R.id.now_playing).setVisibility(View.GONE);
         }
     }
 
@@ -84,9 +85,16 @@ public class MainActivity extends AppCompatActivity {
                     .replace(R.id.fragment_top_tracks, fragment).addToBackStack(null)
                     .commit();
         }
+        if (mNowPlaying && !mPlayerVisible){
+            findViewById(R.id.now_playing).setVisibility(View.VISIBLE);
+        }
+        else {
+            findViewById(R.id.now_playing).setVisibility(View.GONE);
+        }
     }
 
     public void addFragmentPlayer(){
+        mPlayerVisible = true;
         PlayerFragment fragment = new PlayerFragment();
         if(!mTwoPane) {
             getSupportFragmentManager().beginTransaction()
@@ -94,11 +102,16 @@ public class MainActivity extends AppCompatActivity {
                     .commit();
         }
         else {
-            mPlayerVisible = true;
-            findViewById(R.id.fragment_player).setVisibility(View.VISIBLE);
+            findViewById(R.id.fragment_container).setVisibility(View.VISIBLE);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_player, fragment).addToBackStack(null)
                     .commit();
+        }
+        if (mNowPlaying && !mPlayerVisible){
+            findViewById(R.id.now_playing).setVisibility(View.VISIBLE);
+        }
+        else {
+            findViewById(R.id.now_playing).setVisibility(View.GONE);
         }
     }
 
@@ -113,7 +126,13 @@ public class MainActivity extends AppCompatActivity {
         MainActivity.super.onBackPressed();
         if(mTwoPane) {
             mPlayerVisible = false;
-            findViewById(R.id.fragment_player).setVisibility(View.GONE);
+            findViewById(R.id.fragment_container).setVisibility(View.GONE);
+            if (mNowPlaying && !mPlayerVisible){
+                findViewById(R.id.now_playing).setVisibility(View.VISIBLE);
+            }
+            else {
+                findViewById(R.id.now_playing).setVisibility(View.GONE);
+            }
         }
     }
 }

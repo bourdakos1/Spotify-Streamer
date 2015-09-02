@@ -76,6 +76,7 @@ public class PlayerService extends Service {
     private void sendBroadcast(){
         Intent broadcastIntent = new Intent(ACTION_STATUS);
         broadcastIntent.putExtra(IS_PLAYING_EXTRA, mMediaPlayer.isPlaying());
+        broadcastIntent.putExtra(HAS_STARTED_EXTRA, true);
         sendStickyBroadcast(broadcastIntent);
     }
 
@@ -94,6 +95,11 @@ public class PlayerService extends Service {
      * Destroy broadcast receiver.
      */
     private void destroy(){
+        Intent broadcastIntent = new Intent(ACTION_STATUS);
+        broadcastIntent.putExtra(IS_PLAYING_EXTRA, false);
+        broadcastIntent.putExtra(HAS_STARTED_EXTRA, false);
+        sendStickyBroadcast(broadcastIntent);
+        Log.d("","end service");
         getApplicationContext().unregisterReceiver(mReceiver);
     }
 

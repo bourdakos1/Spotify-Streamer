@@ -10,11 +10,13 @@
             android:background="@drawable/loading_image"
             android:layout_width="56dp"
             android:layout_height="56dp" />
-        <View
+        <ProgressBar
+            android:id="@+id/progress"
             android:layout_toRightOf="@+id/now_album_image"
+            style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
-            android:background="@color/green"
-            android:layout_height="4dp"/>
+            android:layout_height="4dp"
+            android:progressDrawable="@drawable/custom_seek"/>
         <LinearLayout
             android:layout_toRightOf="@+id/now_album_image"
             android:layout_toLeftOf="@+id/now_play"

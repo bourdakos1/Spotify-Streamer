@@ -93,6 +93,7 @@
 
     <TextView
         android:layout_marginLeft="16dp"
+        android:layout_marginBottom="16dp"
         android:id="@+id/album_name"
         android:text="Album: Red"
         android:textSize="12sp"

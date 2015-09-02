@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -29,6 +30,7 @@ public class NowPlayingFragment extends Fragment {
     @Bind(R.id.now_artist_name) TextView mArtist;
     @Bind(R.id.now_playing_bar) RelativeLayout mNowPlayingBar;
     @Bind(R.id.now_play) ImageButton mPlay;
+    @Bind(R.id.progress) ProgressBar mProgress;
 
     /**
      * Broadcast receiver that gets play/pause info, track details, and playback position.
@@ -48,10 +50,12 @@ public class NowPlayingFragment extends Fragment {
                     break;
                 case PlayerService.ACTION_PLAYBACK_POSITION:
                     mMediaPosition = intent.getIntExtra(PlayerService.PLAYBACK_POSITION_EXTRA, 0);
+                    mProgress.setProgress(mMediaPosition);
                     break;
                 case PlayerService.ACTION_DETAILS:
                     Picasso.with(getActivity()).load(intent.getStringExtra(PlayerService.IMAGE_EXTRA)).into(mImage);
                     mMediaDuration = intent.getIntExtra(PlayerService.DURATION_EXTRA, 0);
+                    mProgress.setMax(mMediaDuration);
                     mTrack.setText(intent.getStringExtra(PlayerService.TRACK_EXTRA));
                     mArtist.setText(intent.getStringExtra(PlayerService.ARTIST_EXTRA));
                     break;

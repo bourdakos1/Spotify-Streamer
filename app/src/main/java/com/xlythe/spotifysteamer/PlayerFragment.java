@@ -179,14 +179,4 @@ public class PlayerFragment extends Fragment {
         broadcastIntent.putExtra(PlayerService.FORWARD_EXTRA, forward);
         getActivity().sendBroadcast(broadcastIntent);
     }
-
-    /**
-     * Unregister receiver.
-     */
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        getActivity().unregisterReceiver(mReceiver);
-    }
-
 }

@@ -25,11 +25,24 @@
             android:background="@color/toolbar"/>
 
     </LinearLayout>
+    <RelativeLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#99000000"
+        android:visibility="gone">
     <FrameLayout
         android:id="@+id/fragment_player"
         android:layout_width="500dp"
-        android:layout_height="500dp"
+        android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:visibility="gone"
         android:background="@color/toolbar"/>
+</RelativeLayout>
+    <FrameLayout
+        android:layout_alignParentBottom="true"
+        android:id="@+id/now_playing"
+        android:layout_marginLeft="104dp"
+        android:layout_marginRight="104dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 </RelativeLayout>
