@@ -27,19 +27,21 @@ public class PlayerFragment extends Fragment {
     @Bind(R.id.play) ImageButton mPlay;
     @Bind(R.id.next) ImageButton mNext;
     @Bind(R.id.previous) ImageButton mPrevious;
+    @Bind(R.id.share) ImageButton mShare;
     @Bind(R.id.duration) TextView mDuration;
     @Bind(R.id.position) TextView mPosition;
-    @Bind(R.id.seekBar) SeekBar mSeekBar;
     @Bind(R.id.artist_name) TextView mArtist;
     @Bind(R.id.album_name) TextView mAlbum;
-    @Bind(R.id.album_image) ImageView mImageView;
     @Bind(R.id.track_name) TextView mTrack;
+    @Bind(R.id.seekBar) SeekBar mSeekBar;
+    @Bind(R.id.album_image) ImageView mImageView;
 
     private boolean mIsPlaying;
     private String mAlbumName;
     private String mAlbumArt;
     private String mTrackName;
     private String mArtistName;
+    private String mShareUrl;
     private int mMediaPosition;
     private int mMediaDuration;
 
@@ -65,6 +67,7 @@ public class PlayerFragment extends Fragment {
                     mAlbumName = intent.getStringExtra(PlayerService.ALBUM_EXTRA);
                     mTrackName = intent.getStringExtra(PlayerService.TRACK_EXTRA);
                     mArtistName = intent.getStringExtra(PlayerService.ARTIST_EXTRA);
+                    mShareUrl = intent.getStringExtra(PlayerService.URL_EXTRA);
                     invalidateUI();
                     break;
             }
@@ -143,6 +146,17 @@ public class PlayerFragment extends Fragment {
         mPrevious.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 sendBroadcast(false);
+            }
+        });
+
+        // Share link.
+        mShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent share = new Intent(Intent.ACTION_SEND);
+                share.setType("text/plain");
+                share.putExtra(Intent.EXTRA_TEXT, mShareUrl);
+                startActivity(Intent.createChooser(share, "Share with Friends"));
             }
         });
         return rootView;

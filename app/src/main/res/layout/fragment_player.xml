@@ -4,6 +4,9 @@
     android:orientation="vertical"
     tools:context="com.xlythe.spotifysteamer.PlayerFragment">
 
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -15,6 +18,14 @@
             android:adjustViewBounds="true"
             android:src="@drawable/loading_image" />
     </LinearLayout>
+        <ImageButton
+            android:id="@+id/share"
+            android:background="@drawable/abc_ic_menu_share_mtrl_alpha"
+            android:layout_alignParentRight="true"
+            android:layout_margin="16dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
 
     <SeekBar
         android:thumbTint="@color/green"

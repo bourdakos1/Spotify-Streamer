@@ -28,6 +28,7 @@ public class PlayerService extends Service {
     public final static String ALBUM_EXTRA = "album";
     public final static String TRACK_EXTRA = "track";
     public final static String ARTIST_EXTRA = "artist";
+    public final static String URL_EXTRA = "url";
     public final static String SEEK_TO_EXTRA = "seek_to";
     public final static String FORWARD_EXTRA = "forward";
 
@@ -172,6 +173,7 @@ public class PlayerService extends Service {
                 broadcastIntent.putExtra(ALBUM_EXTRA, mList.get(mCurrentTrack).getAlbumName());
                 broadcastIntent.putExtra(TRACK_EXTRA, mList.get(mCurrentTrack).getTrackName());
                 broadcastIntent.putExtra(ARTIST_EXTRA, mList.get(mCurrentTrack).getArtistName());
+                broadcastIntent.putExtra(URL_EXTRA, mList.get(mCurrentTrack).getPreviewUrl());
                 sendStickyBroadcast(broadcastIntent);
             }
         });
