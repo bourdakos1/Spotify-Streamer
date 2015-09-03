@@ -3,9 +3,11 @@ package com.xlythe.spotifysteamer;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -22,6 +24,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.ButterKnife;
 import butterknife.Bind;
@@ -132,8 +136,13 @@ public class SearchFragment extends Fragment {
     private void populateArtists(CharSequence charSequence){
         SpotifyApi api = new SpotifyApi();
         final SpotifyService spotify = api.getService();
+        Map<String, Object> query = new HashMap<>();
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String countryCode = sharedPref.getString("list_preference", "");
+        query.put(spotify.COUNTRY, countryCode);
+        Log.d("cc", countryCode);
         mToast = Toast.makeText(mActivity, "No results found.", Toast.LENGTH_SHORT);
-        spotify.searchArtists(charSequence.toString(), new Callback<ArtistsPager>() {
+        spotify.searchArtists(charSequence.toString(), query, new Callback<ArtistsPager>() {
             @Override
             public void success(ArtistsPager artistsPager, Response response) {
                 mList.clear();

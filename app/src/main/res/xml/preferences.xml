@@ -2,21 +2,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
-        android:title="stuff">
+        android:title="Settings">
 
-        <CheckBoxPreference
-            android:key="checkbox_preference"
-            android:title="Notifications"
-            android:summary="shows notifications" />
+        <SwitchPreference
+            android:key="switch_preference"
+            android:title="Notifications"/>
 
 
-        <!--<ListPreference-->
-            <!--android:key="list_preference"-->
-            <!--android:title="@string/title_list_preference"-->
-            <!--android:summary="@string/summary_list_preference"-->
-            <!--android:entries="@array/entries_list_preference"-->
-            <!--android:entryValues="@array/entryvalues_list_preference"-->
-            <!--android:dialogTitle="@string/dialog_title_list_preference" />-->
+        <ListPreference
+            android:key="list_preference"
+            android:title="Country Code"
+            android:dialogTitle="Country Code" />
 
     </PreferenceCategory>
 </PreferenceScreen>

@@ -2,9 +2,11 @@ package com.xlythe.spotifysteamer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -146,10 +148,13 @@ public class TopTracksFragment extends Fragment {
     public void prepareTopTracks(ArtistParcelable artist){
         SpotifyApi api = new SpotifyApi();
         final SpotifyService spotify = api.getService();
-        Map<String, Object> mQuery = new HashMap<>();
-        mQuery.put(spotify.COUNTRY, "US");
+        Map<String, Object> query = new HashMap<>();
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String countryCode = sharedPref.getString("list_preference", "");
+        query.put(spotify.COUNTRY, countryCode);
+        Log.d("cc", countryCode);
         mToast = Toast.makeText(getActivity(), "No results found.", Toast.LENGTH_SHORT);
-        spotify.getArtistTopTrack(artist.getArtistId(), mQuery,new Callback<Tracks>() {
+        spotify.getArtistTopTrack(artist.getArtistId(), query,new Callback<Tracks>() {
             @Override
             public void success(Tracks tracks, Response response) {
                 mList.clear();

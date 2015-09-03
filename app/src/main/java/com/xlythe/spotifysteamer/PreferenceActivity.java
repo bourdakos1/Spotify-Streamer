@@ -2,9 +2,12 @@ package com.xlythe.spotifysteamer;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import java.util.Locale;
 
 public class PreferenceActivity extends AppCompatActivity {
 
@@ -29,6 +32,13 @@ public class PreferenceActivity extends AppCompatActivity {
 
             // Load the preferences from an XML resource
             addPreferencesFromResource(R.xml.preferences);
+
+            String[] isoCountryCodes = Locale.getISOCountries();
+
+            ListPreference listPref = (ListPreference) findPreference("list_preference");
+            listPref.setKey("keyName");
+            listPref.setEntries(isoCountryCodes);
+            listPref.setEntryValues(isoCountryCodes);
         }
     }
 }
