@@ -3,7 +3,10 @@
     <color name="black">#000000</color>
     <color name="toolbar">#212121</color>
     <color name="overlay">#33000000</color>
+    <color name="off_white">#fafafa</color>
     <color name="white">#ffffff</color>
     <color name="transparent_white">#A0ffffff</color>
+    <color name="transparent_black">#A0000000</color>
+    <color name="black_overlay">#99000000</color>
     <color name="green">#00c853</color>
 </resources>

@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.xlythe.spotifysteamer.NowPlayingFragment"
     android:id="@+id/now_playing_bar"
-    android:background="#fafafa"
+    android:background="@color/off_white"
     android:layout_width="match_parent"
     android:layout_height="56dp">
         <ImageView
@@ -12,43 +12,48 @@
             android:layout_height="56dp" />
         <ProgressBar
             android:id="@+id/progress"
+            android:layout_toEndOf="@+id/now_album_image"
             android:layout_toRightOf="@+id/now_album_image"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="4dp"
             android:progressDrawable="@drawable/custom_seek"/>
         <LinearLayout
+            android:layout_toEndOf="@+id/now_album_image"
+            android:layout_toStartOf="@+id/now_play"
             android:layout_toRightOf="@+id/now_album_image"
             android:layout_toLeftOf="@+id/now_play"
             android:layout_centerVertical="true"
             android:layout_width="wrap_content"
-            android:background="#fafafa"
+            android:background="@color/off_white"
             android:orientation="horizontal"
             android:layout_height="wrap_content">
             <TextView
                 android:id="@+id/now_track_name"
+                android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
                 android:textSize="16sp"
-                android:textColor="#000000"
-                android:background="#fafafa"
+                android:textColor="@color/black"
+                android:background="@color/off_white"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="I Knew You Were Trouble"/>
+                android:layout_height="wrap_content"/>
             <TextView
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="16dp"
                 android:textSize="16sp"
                 android:lines="1"
                 android:ellipsize="end"
                 android:id="@+id/now_artist_name"
-                android:textColor="#A0000000"
-                android:background="#fafafa"
+                android:textColor="@color/transparent_black"
+                android:background="@color/off_white"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Taylor Swift"/>
+                android:layout_height="wrap_content"/>
         </LinearLayout>
         <ImageButton
             android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:id="@+id/now_play"
             android:background="@drawable/now_play"
             android:layout_width="56dp"
