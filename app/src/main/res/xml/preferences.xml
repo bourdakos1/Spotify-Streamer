@@ -8,10 +8,11 @@
             android:key="switch_preference"
             android:title="Notifications"/>
 
-
         <ListPreference
             android:key="list_preference"
             android:title="Country Code"
+            android:entries="@array/country_codes"
+            android:entryValues="@array/country_codes"
             android:dialogTitle="Country Code" />
 
     </PreferenceCategory>

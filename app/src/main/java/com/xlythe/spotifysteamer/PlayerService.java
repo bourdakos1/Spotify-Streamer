@@ -8,11 +8,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.squareup.picasso.Picasso;
@@ -188,8 +190,12 @@ public class PlayerService extends Service {
                 broadcastIntent.putExtra(ARTIST_EXTRA, mList.get(mCurrentTrack).getArtistName());
                 broadcastIntent.putExtra(URL_EXTRA, mList.get(mCurrentTrack).getPreviewUrl());
                 sendStickyBroadcast(broadcastIntent);
-                NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                manager.notify(NOTIFICATION_TAG, buildNotification());
+                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                Boolean enabled = sharedPref.getBoolean("switch_preference", false);
+                if (enabled) {
+                    NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                    manager.notify(NOTIFICATION_TAG, buildNotification());
+                }
             }
         });
     }
