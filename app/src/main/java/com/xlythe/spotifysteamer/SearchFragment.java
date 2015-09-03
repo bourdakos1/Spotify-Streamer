@@ -2,9 +2,11 @@ package com.xlythe.spotifysteamer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -43,6 +45,7 @@ public class SearchFragment extends Fragment {
     @Bind(R.id.not_found) ImageView mNotFound;
     @Bind(R.id.search_view) EditText mSearchView;
     @Bind(R.id.clear) ImageButton mClear;
+    @Bind(R.id.fabBtn) FloatingActionButton mFab;
 
     public SearchFragment() {
     }
@@ -89,6 +92,13 @@ public class SearchFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 mSearchView.setText("");
+            }
+        });
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(mActivity, PreferenceActivity.class);
+                startActivity(i);
             }
         });
         return rootView;

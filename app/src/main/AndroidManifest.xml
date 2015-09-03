@@ -32,6 +32,10 @@
             android:exported="true" >
         </service>
 
+        <activity
+            android:name=".PreferenceActivity"
+            android:label="@string/title_activity_preference" >
+        </activity>
     </application>
 
 </manifest>
