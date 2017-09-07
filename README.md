@@ -1,3 +1,3 @@
 # Spotify-Streamer
 
-Lister to clips of music with spotify
+Listen to clips of music with spotify
